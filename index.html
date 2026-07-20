@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Hub</title>
+    
+    <!-- This script instantly checks for ?item= and redirects before the page even loads -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const item = urlParams.get('item');
+        if (item) {
+            // Instantly redirect to the raw Hugging Face Dataset URL
+            window.location.replace(`https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/${item}`);
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg: #f4f4f5;
+            --text: #18181b;
+            --primary: #000000;
+            --border: #e4e4e7;
+            --card-bg: #ffffff;
+            --radius: 12px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.02);
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s ease;
+            background-color: #fafafa;
+        }
+        input[type="text"]:focus {
+            border-color: #a1a1aa;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+        #dropzone {
+            border: 2px dashed #d4d4d8;
+            border-radius: 10px;
+            padding: 3rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #fafafa;
+            position: relative;
+        }
+        #dropzone.hover {
+            border-color: var(--primary);
+            background-color: #f4f4f5;
+        }
+        #dropzone p {
+            margin: 0;
+            color: #71717a;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            pointer-events: none;
+        }
+        #dropzone svg {
+            width: 32px;
+            height: 32px;
+            color: #a1a1aa;
+            margin-bottom: 12px;
+            transition: color 0.2s ease;
+        }
+        #dropzone.hover svg {
+            color: var(--primary);
+        }
+        #result {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            word-break: break-all;
+            min-height: 24px;
+            color: #52525b;
+        }
+        a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            background: #f4f4f5;
+            padding: 0.5rem 0.85rem;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 0.75rem;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+        a:hover {
+            background: #e4e4e7;
+        }
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 0.8s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .error { color: #dc2626; }
+        .success { color: #16a34a; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="ui-container" style="display: none;">
+        <h1>Upload File</h1>
+        
+        <input type="text" id="custom-id" placeholder="Custom link name (optional)">
+        
+        <div id="dropzone">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p><strong>Click to upload</strong> or drag and drop<br>Max size: 4.5MB (Vercel Limit)</p>
+            <input type="file" id="file-input" style="display: none;">
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Only show the UI if we aren't redirecting an ?item= request
+        if (!item) {
+            document.getElementById('ui-container').style.display = 'block';
+        }
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        const customIdInput = document.getElementById('custom-id');
+        const resultDiv = document.getElementById('result');
+
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('hover');
+        });
+        
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('hover'));
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('hover');
+            if (e.dataTransfer.files.length) {
+                uploadFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                uploadFile(fileInput.files[0]);
+            }
+        });
+
+        async function uploadFile(file) {
+            if (file.size > 4.5 * 1024 * 1024) {
+                resultDiv.innerHTML = `<span class="error">Error: File exceeds 4.5MB Vercel limit.</span>`;
+                return;
+            }
+
+            resultDiv.innerHTML = '<span class="loader"></span> Uploading...';
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const customId = customIdInput.value.trim();
+            if (customId) {
+                formData.append('custom_id', customId);
+            }
+
+            try {
+                // Send to the Vercel serverless function
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const finalUrl = `https://upload.amit.is-a.dev/?item=${data.item_id}`;
+                    resultDiv.innerHTML = `
+                        <span class="success">Upload Complete!</span><br>
+                        <a href="${finalUrl}" target="_blank">${finalUrl}</a>
+                    `;
+                    fileInput.value = '';
+                    customIdInput.value = '';
+                } else {
+                    resultDiv.innerHTML = `<span class="error">Error: ${data.detail || 'Upload failed'}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">System Error: Could not connect to server.</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
