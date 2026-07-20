@@ -5,6 +5,10 @@ from datetime import datetime
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from huggingface_hub import HfApi
 
+# Fix for Vercel's read-only file system (os error 30)
+os.environ["HF_HOME"] = "/tmp"
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
+
 # Create FastAPI app for Vercel
 app = FastAPI(docs_url=None, redoc_url=None)
 
@@ -30,13 +34,9 @@ async def upload_file(file: UploadFile = File(...), custom_id: str = Form(None))
             if ext and not item_id.endswith(ext):
                 item_id += ext
 
+        # Read the file directly into server RAM (bytes)
         content = await file.read()
         
-        # Vercel allows writing temporary files to /tmp/
-        temp_path = f"/tmp/{item_id}"
-        with open(temp_path, "wb") as f:
-            f.write(content)
-            
         api = HfApi()
         
         # NEW: Automatically create the dataset on Hugging Face if it doesn't exist
@@ -48,17 +48,14 @@ async def upload_file(file: UploadFile = File(...), custom_id: str = Form(None))
             private=False # Ensure it is public so your links work instantly
         )
 
-        # Push to Hugging Face Dataset
+        # Push directly from RAM to Hugging Face Dataset (Bypassing disk entirely)
         api.upload_file(
-            path_or_fileobj=temp_path,
+            path_or_fileobj=content,
             path_in_repo=item_id,
             repo_id=DATASET_REPO,
             repo_type="dataset",
             token=HF_TOKEN
         )
-        
-        # Cleanup tmp file
-        os.remove(temp_path)
         
         return {"item_id": item_id}
         
