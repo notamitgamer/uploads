@@ -129,18 +129,40 @@
             </div>
         </div>
 
+        <!-- Skeleton Loading Container -->
+        <div id="skeleton-container" class="hide bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark p-4 rounded-[16px] mb-6">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-5 h-5 rounded-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                <div class="w-32 h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+            </div>
+            <div class="bg-m3-background dark:bg-m3-backgroundDark p-3 rounded-[8px] flex flex-col gap-3">
+                <div class="w-full h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                <div class="w-3/4 h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                <div class="flex gap-2 w-full mt-1">
+                    <div class="flex-1 h-9 rounded-[8px] bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                    <div class="flex-1 h-9 rounded-[8px] bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Success Result -->
         <div id="result-container" class="hide bg-m3-secondaryContainer dark:bg-m3-secondaryContainerDark p-4 rounded-[16px] mb-6 border border-transparent">
             <div class="flex items-center gap-2 mb-3">
                 <span class="material-symbols-outlined text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark">check_circle</span>
                 <span class="font-bold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark text-sm">Upload Successful</span>
             </div>
-            <div class="flex items-center gap-2 bg-m3-background dark:bg-m3-backgroundDark p-2 pl-3 rounded-[8px]">
-                <input type="text" id="final-link" readonly class="bg-transparent border-none outline-none text-sm text-m3-onSurface dark:text-m3-onSurfaceDark w-full truncate cursor-default">
-                <button id="copy-btn" class="bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-4 py-2 rounded-[8px] text-sm font-medium hover:bg-opacity-90 active:bg-opacity-100 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]" id="copy-icon">content_copy</span>
-                    <span>Copy</span>
-                </button>
+            <div class="flex flex-col gap-3 bg-m3-background dark:bg-m3-backgroundDark p-3 rounded-[8px]">
+                <div id="final-link-text" class="text-sm text-m3-onSurface dark:text-m3-onSurfaceDark break-all select-all font-medium"></div>
+                <div class="flex gap-2 w-full">
+                    <button id="copy-btn" class="flex-1 bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-3 py-2 rounded-[8px] text-sm font-medium hover:bg-opacity-90 active:bg-opacity-100 flex items-center justify-center gap-1.5 border border-transparent">
+                        <span class="material-symbols-outlined text-[18px]" id="copy-icon">content_copy</span>
+                        <span>Copy</span>
+                    </button>
+                    <a id="open-btn" href="#" target="_blank" class="flex-1 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark text-m3-onSurface dark:text-m3-onSurfaceDark px-3 py-2 rounded-[8px] text-sm font-medium hover:bg-opacity-90 active:bg-opacity-100 flex items-center justify-center gap-1.5 no-underline border border-transparent">
+                        <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                        <span>Open</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -150,6 +172,11 @@
                 <span class="material-symbols-outlined">error</span>
                 <span id="error-text" class="text-sm font-medium mt-0.5"></span>
             </div>
+        </div>
+
+        <!-- Copyright Footer -->
+        <div class="text-center mt-2 text-xs font-medium text-m3-outline dark:text-m3-outlineDark">
+            &copy; 2026 notamitgamer
         </div>
 
     </div>
@@ -169,10 +196,13 @@
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
         
+        const skeletonContainer = document.getElementById('skeleton-container');
+        
         const resultContainer = document.getElementById('result-container');
-        const finalLinkInput = document.getElementById('final-link');
+        const finalLinkText = document.getElementById('final-link-text');
         const copyBtn = document.getElementById('copy-btn');
         const copyIcon = document.getElementById('copy-icon');
+        const openBtn = document.getElementById('open-btn');
         
         const errorContainer = document.getElementById('error-container');
         const errorText = document.getElementById('error-text');
@@ -205,7 +235,7 @@
 
         // Copy Button Logic (Instant text swap)
         copyBtn.addEventListener('click', () => {
-            const linkToCopy = finalLinkInput.value;
+            const linkToCopy = openBtn.href;
             navigator.clipboard.writeText(linkToCopy).then(() => {
                 copyIcon.textContent = 'check';
                 copyBtn.querySelector('span:last-child').textContent = 'Copied';
@@ -215,9 +245,16 @@
                     copyBtn.querySelector('span:last-child').textContent = 'Copy';
                 }, 2000);
             }).catch(err => {
-                // Fallback
-                finalLinkInput.select();
+                // Fallback for older browsers or restricted frames
+                const tempTextArea = document.createElement("textarea");
+                tempTextArea.value = linkToCopy;
+                tempTextArea.style.position = "fixed";
+                tempTextArea.style.opacity = "0";
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
                 document.execCommand("copy");
+                document.body.removeChild(tempTextArea);
+                
                 copyIcon.textContent = 'check';
                 copyBtn.querySelector('span:last-child').textContent = 'Copied';
                 setTimeout(() => { 
@@ -230,6 +267,8 @@
         function resetUI() {
             progressContainer.classList.remove('show');
             progressContainer.classList.add('hide');
+            skeletonContainer.classList.remove('show');
+            skeletonContainer.classList.add('hide');
             resultContainer.classList.remove('show');
             resultContainer.classList.add('hide');
             errorContainer.classList.remove('show-flex');
@@ -267,19 +306,31 @@
                     // Instant width update, no CSS transition
                     progressBar.style.width = percentComplete + '%';
                     progressText.innerText = percentComplete + '%';
+                    
+                    // Show skeleton loader once file is sent but awaiting HF response
+                    if (percentComplete === 100) {
+                        progressContainer.classList.remove('show');
+                        progressContainer.classList.add('hide');
+                        skeletonContainer.classList.remove('hide');
+                        skeletonContainer.classList.add('show');
+                    }
                 }
             };
 
             xhr.onload = function() {
                 progressContainer.classList.remove('show');
                 progressContainer.classList.add('hide');
+                skeletonContainer.classList.remove('show');
+                skeletonContainer.classList.add('hide');
                 
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const data = JSON.parse(xhr.responseText);
                         const finalUrl = `${window.location.origin}/?item=${data.item_id}`;
                         
-                        finalLinkInput.value = finalUrl;
+                        finalLinkText.innerText = finalUrl;
+                        openBtn.href = finalUrl;
+                        
                         resultContainer.classList.remove('hide');
                         resultContainer.classList.add('show');
                         
@@ -305,6 +356,8 @@
             xhr.onerror = function() {
                 progressContainer.classList.remove('show');
                 progressContainer.classList.add('hide');
+                skeletonContainer.classList.remove('show');
+                skeletonContainer.classList.add('hide');
                 errorText.innerText = "System error: Could not connect to server.";
                 errorContainer.classList.remove('hide');
                 errorContainer.classList.add('show-flex');
