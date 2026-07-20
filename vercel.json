@@ -11,6 +11,11 @@
 ],
 "destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
 "permanent": false
+},
+{
+"source": "/(?[^/]+\.[a-zA-Z0-9]+)",
+"destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
+"permanent": false
 }
 ],
 "rewrites": [
