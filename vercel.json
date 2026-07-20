@@ -1,7 +1,21 @@
 {
+"redirects": [
+{
+"source": "/",
+"has": [
+{
+"type": "query",
+"key": "item",
+"value": "(?.)"
+}
+],
+"destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
+"permanent": false
+}
+],
 "rewrites": [
 {
-"source": "/api/(.*)",
+"source": "/api/(.)",
 "destination": "/api/index"
 }
 ]
