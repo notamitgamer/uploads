@@ -1,26 +1,15 @@
 {
+"$schema": "https://openapi.vercel.sh/vercel.json",
 "redirects": [
 {
-"source": "/",
-"has": [
-{
-"type": "query",
-"key": "item",
-"value": "(?.)"
-}
-],
-"destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
-"permanent": false
-},
-{
-"source": "/(?[^/]+\.[a-zA-Z0-9]+)",
+"source": "/(?[^/]+)",
 "destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
 "permanent": false
 }
 ],
 "rewrites": [
 {
-"source": "/api/(.)",
+"source": "/api/(.*)",
 "destination": "/api/index"
 }
 ]
