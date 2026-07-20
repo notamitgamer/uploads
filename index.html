@@ -4,15 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Hub</title>
-    
-    <!-- Instant redirect check -->
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const item = urlParams.get('item');
-        if (item) {
-            window.location.replace(`https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/${item}`);
-        }
-    </script>
 
     <!-- Fonts: Lexend & Material Symbols -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,7 +20,6 @@
                         sans: ['Lexend', 'sans-serif'],
                     },
                     colors: {
-                        // Strict M3 Color Palette (Light/Dark)
                         m3: {
                             background: '#FDFCFB',
                             backgroundDark: '#1A1C19',
@@ -69,7 +59,6 @@
     </script>
 
     <style>
-        /* Zero animations, instant state changes only */
         body {
             background-color: #FDFCFB; 
             margin: 0;
@@ -78,8 +67,6 @@
         @media (prefers-color-scheme: dark) {
             body { background-color: #1A1C19; }
         }
-        
-        /* Instant focus states, no transitions */
         input:focus {
             outline: none;
             border-bottom-color: #386A20;
@@ -87,8 +74,6 @@
         @media (prefers-color-scheme: dark) {
             input:focus { border-bottom-color: #9CD67D; }
         }
-        
-        /* Utility classes for instant display toggling */
         .show { display: block !important; }
         .show-flex { display: flex !important; }
         .hide { display: none !important; }
@@ -96,29 +81,25 @@
 </head>
 <body class="bg-m3-background dark:bg-m3-backgroundDark text-m3-onSurface dark:text-m3-onSurfaceDark flex flex-col items-center justify-center min-h-screen p-4 font-sans">
 
-    <div id="ui-container" class="w-full max-w-[480px] hide">
+    <div id="ui-container" class="w-full max-w-[480px] show">
         
-        <!-- Minimal Header -->
         <div class="mb-8">
             <h1 class="text-2xl font-bold tracking-tight">Upload</h1>
             <p class="text-sm text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mt-1">Store files permanently on Hugging Face</p>
         </div>
 
-        <!-- Static Input Field -->
         <div class="flex flex-col gap-1.5 mb-6">
             <label for="custom-id" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Custom ID (Optional)</label>
             <input type="text" id="custom-id" placeholder="e.g., source-code" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark text-m3-onSurface dark:text-m3-onSurfaceDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark placeholder-gray-500">
         </div>
 
-        <!-- Solid M3 Dropzone (No dashed borders, solid surface) -->
-        <div id="dropzone" class="bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark hover:bg-m3-surfaceContainerHigh dark:hover:bg-m3-surfaceContainerHighDark rounded-[24px] p-10 flex flex-col items-center justify-center cursor-pointer mb-6 border border-transparent">
+        <div id="dropzone" class="bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark hover:bg-m3-surfaceContainerHigh dark:hover:bg-m3-surfaceContainerHighDark rounded-[24px] p-10 flex flex-col items-center justify-center cursor-pointer mb-6 border border-transparent transition-colors">
             <span class="material-symbols-outlined text-[48px] text-m3-primary dark:text-m3-primaryDark mb-4">upload</span>
             <span class="text-base font-semibold text-m3-onSurface dark:text-m3-onSurfaceDark">Click or drag file</span>
             <span class="text-sm mt-1 text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Max 4.5MB per file</span>
             <input type="file" id="file-input" class="hidden">
         </div>
 
-        <!-- Progress Bar (Utilitarian, no animation on width change) -->
         <div id="progress-container" class="hide mb-6">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Uploading...</span>
@@ -129,7 +110,6 @@
             </div>
         </div>
 
-        <!-- Skeleton Loading Container -->
         <div id="skeleton-container" class="hide animate-pulse bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark p-4 rounded-[16px] mb-6">
             <div class="flex items-center gap-2 mb-3">
                 <div class="w-5 h-5 rounded-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
@@ -145,7 +125,6 @@
             </div>
         </div>
 
-        <!-- Success Result -->
         <div id="result-container" class="hide bg-m3-secondaryContainer dark:bg-m3-secondaryContainerDark p-4 rounded-[16px] mb-6 border border-transparent">
             <div class="flex items-center gap-2 mb-3">
                 <span class="material-symbols-outlined text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark">check_circle</span>
@@ -166,7 +145,6 @@
             </div>
         </div>
 
-        <!-- Error Container -->
         <div id="error-container" class="hide bg-m3-errorContainer dark:bg-m3-errorContainerDark text-m3-onErrorContainer dark:text-m3-onErrorContainerDark p-4 rounded-[16px] mb-6">
             <div class="flex items-start gap-3">
                 <span class="material-symbols-outlined">error</span>
@@ -176,38 +154,26 @@
 
     </div>
 
-    <!-- Copyright Footer (Pinned to the bottom of the screen) -->
     <div class="fixed bottom-4 left-0 w-full text-center text-xs font-medium text-m3-outline dark:text-m3-outlineDark z-10 pointer-events-none">
         &copy; 2026 notamitgamer
     </div>
 
     <script>
-        // Reveal UI only if not redirecting
-        if (!item) {
-            document.getElementById('ui-container').classList.remove('hide');
-            document.getElementById('ui-container').classList.add('show');
-        }
-
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('file-input');
         const customIdInput = document.getElementById('custom-id');
-        
         const progressContainer = document.getElementById('progress-container');
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
-        
         const skeletonContainer = document.getElementById('skeleton-container');
-        
         const resultContainer = document.getElementById('result-container');
         const finalLinkText = document.getElementById('final-link-text');
         const copyBtn = document.getElementById('copy-btn');
         const copyIcon = document.getElementById('copy-icon');
         const openBtn = document.getElementById('open-btn');
-        
         const errorContainer = document.getElementById('error-container');
         const errorText = document.getElementById('error-text');
 
-        // Drag & Drop Handling (Instant state swaps, no transition classes)
         dropzone.addEventListener('click', () => fileInput.click());
 
         dropzone.addEventListener('dragover', (e) => {
@@ -233,7 +199,6 @@
             }
         });
 
-        // Copy Button Logic (Instant text swap)
         copyBtn.addEventListener('click', () => {
             const linkToCopy = openBtn.href;
             navigator.clipboard.writeText(linkToCopy).then(() => {
@@ -245,7 +210,6 @@
                     copyBtn.querySelector('span:last-child').textContent = 'Copy';
                 }, 2000);
             }).catch(err => {
-                // Fallback for older browsers or restricted frames
                 const tempTextArea = document.createElement("textarea");
                 tempTextArea.value = linkToCopy;
                 tempTextArea.style.position = "fixed";
@@ -277,7 +241,6 @@
             progressText.innerText = '0%';
         }
 
-        // Real Progress Upload Logic via XMLHttpRequest
         function uploadFile(file) {
             resetUI();
 
@@ -303,11 +266,9 @@
             xhr.upload.onprogress = function(e) {
                 if (e.lengthComputable) {
                     const percentComplete = Math.round((e.loaded / e.total) * 100);
-                    // Instant width update, no CSS transition
                     progressBar.style.width = percentComplete + '%';
                     progressText.innerText = percentComplete + '%';
                     
-                    // Show skeleton loader once file is sent but awaiting HF response
                     if (percentComplete === 100) {
                         progressContainer.classList.remove('show');
                         progressContainer.classList.add('hide');
@@ -326,7 +287,8 @@
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const data = JSON.parse(xhr.responseText);
-                        const finalUrl = `${window.location.origin}/?item=${data.item_id}`;
+                        // Changed routing to native path instead of query parameter
+                        const finalUrl = `${window.location.origin}/${data.item_id}`;
                         
                         finalLinkText.innerText = finalUrl;
                         openBtn.href = finalUrl;
