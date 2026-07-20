@@ -283,7 +283,7 @@
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const data = JSON.parse(xhr.responseText);
-                        const finalUrl = `https://upload.amit.is-a.dev/?item=${data.item_id}`;
+                        const finalUrl = `${window.location.origin}/?item=${data.item_id}`;
                         
                         finalLink.href = finalUrl;
                         finalLink.innerText = finalUrl;
