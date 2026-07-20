@@ -12,6 +12,8 @@ app = FastAPI(docs_url=None, redoc_url=None)
 DATASET_REPO = "notamitgamer/uploads" 
 HF_TOKEN = os.getenv("HF_TOKEN")
 
+# In Vercel, the route needs to match exactly what the frontend is calling.
+# Since vercel.json routes /api/(.*) to this file, we handle the specific endpoint.
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...), custom_id: str = Form(None)):
     if not HF_TOKEN:
