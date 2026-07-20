@@ -12,8 +12,6 @@ app = FastAPI(docs_url=None, redoc_url=None)
 DATASET_REPO = "notamitgamer/uploads" 
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-# In Vercel, the route needs to match exactly what the frontend is calling.
-# Since vercel.json routes /api/(.*) to this file, we handle the specific endpoint.
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...), custom_id: str = Form(None)):
     if not HF_TOKEN:
@@ -39,8 +37,18 @@ async def upload_file(file: UploadFile = File(...), custom_id: str = Form(None))
         with open(temp_path, "wb") as f:
             f.write(content)
             
-        # Push to Hugging Face Dataset
         api = HfApi()
+        
+        # NEW: Automatically create the dataset on Hugging Face if it doesn't exist
+        api.create_repo(
+            repo_id=DATASET_REPO, 
+            repo_type="dataset", 
+            exist_ok=True, 
+            token=HF_TOKEN,
+            private=False # Ensure it is public so your links work instantly
+        )
+
+        # Push to Hugging Face Dataset
         api.upload_file(
             path_or_fileobj=temp_path,
             path_in_repo=item_id,
