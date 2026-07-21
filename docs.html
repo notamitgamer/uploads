@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Docs &middot; Upload Hub</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -35,7 +33,6 @@
             }
         }
     </script>
-
     <style>
         body { background-color: #FDFCFB; margin: 0; -webkit-font-smoothing: antialiased; }
         @media (prefers-color-scheme: dark) { body { background-color: #1A1C19; } }
@@ -49,13 +46,6 @@
         .node-alt { fill: #E5E6DE; stroke: #74796D; }
         @media (prefers-color-scheme: dark) { .node-alt { fill: #434541; stroke: #8D9286; } }
         
-        /* Note: Text classes are mostly preserved for arrows, boxes now use foreignObject html classes */
-        .node-text { fill: #111F0F; font-family: 'Lexend', sans-serif; font-size: 12px; font-weight: 600; }
-        @media (prefers-color-scheme: dark) { .node-text { fill: #D7E8CD; } }
-        
-        .node-text-alt { fill: #1A1C19; font-family: 'Lexend', sans-serif; font-size: 12px; font-weight: 500; }
-        @media (prefers-color-scheme: dark) { .node-text-alt { fill: #E3E3DC; } }
-        
         .arrow { stroke: #74796D; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
         @media (prefers-color-scheme: dark) { .arrow { stroke: #8D9286; } }
         
@@ -67,16 +57,13 @@
     </style>
 </head>
 <body class="bg-m3-background dark:bg-m3-backgroundDark text-m3-onSurface dark:text-m3-onSurfaceDark font-sans">
-
 <div class="max-w-[720px] mx-auto px-4 py-10">
-
     <a href="https://uploads.amit.is-a.dev" class="inline-flex items-center gap-1 text-sm font-semibold text-m3-primary dark:text-m3-primaryDark mb-6">
         <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Upload
     </a>
-
     <h1 class="text-3xl font-bold tracking-tight mb-2">How this tool works</h1>
     <p class="text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mb-10">
-        A permanent, free file host built on a Hugging Face dataset repo, served through a serverless
+        A permanent, free file host built on a Hugging Face dataset repo, served through a serverless 
         FastAPI backend on Vercel. Here's exactly what happens behind each button.
     </p>
 
@@ -84,9 +71,9 @@
     <section class="mb-14">
         <h2 class="text-xl font-bold mb-3">1. The building blocks</h2>
         <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mb-4">
-            There are three pieces: the <strong>frontend</strong> (this website, plain HTML/JS), the
-            <strong>backend</strong> (a Python FastAPI app running as a Vercel serverless function), and
-            <strong>storage</strong> (a public Hugging Face dataset repo, which gives ~unlimited free storage
+            There are three pieces: the <strong>frontend</strong> (this website, plain HTML/JS), the 
+            <strong>backend</strong> (a Python FastAPI app running as a Vercel serverless function), and 
+            <strong>storage</strong> (a public Hugging Face dataset repo, which gives ~unlimited free storage 
             and a permanent, directly-linkable URL per file).
         </p>
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto">
@@ -134,19 +121,18 @@
     <section class="mb-14">
         <h2 class="text-xl font-bold mb-3">2. Uploading a file</h2>
         <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mb-4">
-            Drop a file (or several, or paste one) and the browser sends it straight to <code>/api/upload</code>
-            as <code>multipart/form-data</code>. No file ever touches disk on the server &mdash; it's read into memory
-            and streamed to Hugging Face.
+            Drop a file (or several, or paste one) and the browser sends it straight to <code>/api/upload</code> 
+            as <code>multipart/form-data</code>. No file ever touches disk on the server &mdash; it's read into memory 
+            and streamed directly to Hugging Face.
         </p>
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto mb-4">
-            <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
+            <svg viewBox="0 0 680 250" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
                 <rect x="20" y="10" width="200" height="40" rx="10" class="node-alt"/>
                 <foreignObject x="20" y="10" width="200" height="40">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
                         Select / drop / paste file(s)
                     </div>
                 </foreignObject>
-
                 <path d="M120,50 L120,80" class="arrow"/>
                 
                 <rect x="20" y="80" width="200" height="40" rx="10" class="node-alt"/>
@@ -155,7 +141,6 @@
                         POST /api/upload
                     </div>
                 </foreignObject>
-
                 <path d="M120,120 L120,150" class="arrow"/>
                 
                 <rect x="20" y="150" width="200" height="50" rx="10" class="node"/>
@@ -165,108 +150,63 @@
                         <span class="text-[10px] opacity-80 font-normal">or generate random ID</span>
                     </div>
                 </foreignObject>
-
-                <path d="M120,200 L120,230" class="arrow"/>
+                <path d="M220,175 L340,175" class="arrow"/>
                 
-                <rect x="20" y="230" width="200" height="40" rx="10" class="node"/>
-                <foreignObject x="20" y="230" width="200" height="40">
+                <rect x="340" y="155" width="200" height="40" rx="10" class="node"/>
+                <foreignObject x="340" y="155" width="200" height="40">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
                         Upload bytes to HF dataset
                     </div>
                 </foreignObject>
-
-                <path d="M220,250 L340,250" class="arrow"/>
-                
-                <rect x="340" y="230" width="200" height="60" rx="10" class="node"/>
-                <foreignObject x="340" y="230" width="200" height="60">
-                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
-                        Expiry chosen?
-                        <span class="text-[10px] opacity-80 font-normal mt-0.5">write item.meta.json<br/>with expires_at</span>
-                    </div>
-                </foreignObject>
-
-                <path d="M440,290 L440,310 L120,310 L120,300" class="arrow"/>
-                <text x="280" y="305" text-anchor="middle" class="arrow-label">return link to browser</text>
+                <path d="M440,195 L440,230 L120,230 L120,200" class="arrow"/>
+                <text x="280" y="225" text-anchor="middle" class="arrow-label">return link to browser</text>
             </svg>
         </div>
         <ul class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark list-disc pl-5 space-y-1">
             <li>Any file extension is accepted &mdash; the server never inspects file type, only reuses the extension for the generated ID.</li>
             <li>Max size is <strong>~4.4&nbsp;MB</strong> per file, kept just under Vercel's hard 4.5&nbsp;MB request-body limit.</li>
-            <li>A custom ID is only allowed when uploading exactly one file, and is sanitized to <code>[a-zA-Z0-9._-]</code> to block path traversal.</li>
+            <li>A custom ID is only allowed when uploading exactly one file, and is sanitized to block path traversal.</li>
         </ul>
     </section>
 
-    <!-- ===================== Section: Link types ===================== -->
+    <!-- ===================== Section: Link serving ===================== -->
     <section class="mb-14">
-        <h2 class="text-xl font-bold mb-3">3. Permanent link vs. expiring link</h2>
+        <h2 class="text-xl font-bold mb-3">3. How links are served instantly</h2>
         <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mb-4">
-            The link you get back depends on whether you picked an expiry. This matters because it changes
-            how the link is served when someone opens it later.
+            Because all uploads are permanent, links are handled entirely by Vercel's static configuration
+            in <code>vercel.json</code>. The Python backend function is completely bypassed when you open a file.
         </p>
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto mb-4">
-            <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
-                <rect x="250" y="10" width="180" height="40" rx="10" class="node-alt"/>
-                <foreignObject x="250" y="10" width="180" height="40">
+            <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
+                <rect x="240" y="10" width="200" height="40" rx="10" class="node-alt"/>
+                <foreignObject x="240" y="10" width="200" height="40">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
-                        Someone opens the link
+                        Someone opens /&lt;item_id&gt;
                     </div>
                 </foreignObject>
-
-                <path d="M310,50 L150,90" class="arrow"/>
-                <text x="200" y="70" text-anchor="middle" class="arrow-label">no expiry set</text>
+                <path d="M340,50 L340,80" class="arrow"/>
                 
-                <path d="M370,50 L530,90" class="arrow"/>
-                <text x="480" y="70" text-anchor="middle" class="arrow-label">expiry set</text>
-
-                <rect x="30" y="90" width="240" height="40" rx="10" class="node"/>
-                <foreignObject x="30" y="90" width="240" height="40">
+                <rect x="240" y="80" width="200" height="40" rx="10" class="node"/>
+                <foreignObject x="240" y="80" width="200" height="40">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
-                        /&lt;item_id&gt; &mdash; static redirect
+                        vercel.json intercept
                     </div>
                 </foreignObject>
-
-                <path d="M150,130 L150,160" class="arrow"/>
                 
-                <rect x="30" y="160" width="240" height="50" rx="10" class="node"/>
-                <foreignObject x="30" y="160" width="240" height="50">
-                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
-                        vercel.json redirect rule
-                        <span class="text-[10px] opacity-80 font-normal">instant, no function cold-start</span>
-                    </div>
-                </foreignObject>
-
-                <rect x="410" y="90" width="240" height="40" rx="10" class="node"/>
-                <foreignObject x="410" y="90" width="240" height="40">
-                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
-                        /api/file/&lt;item_id&gt;
-                    </div>
-                </foreignObject>
-
-                <path d="M530,130 L530,160" class="arrow"/>
+                <path d="M340,120 L340,150" class="arrow"/>
+                <text x="390" y="140" text-anchor="middle" class="arrow-label">static redirect (instant)</text>
                 
-                <rect x="410" y="160" width="240" height="60" rx="10" class="node"/>
-                <foreignObject x="410" y="160" width="240" height="60">
-                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
-                        Backend checks item.meta.json
-                        <span class="text-[10px] opacity-80 font-normal mt-0.5">expired? &rarr; HTTP 410<br/>valid? &rarr; 302 redirect to HF</span>
-                    </div>
-                </foreignObject>
-
-                <path d="M150,210 L150,230 L340,230" class="arrow"/>
-                <path d="M530,220 L530,230 L340,230" class="arrow"/>
-                
-                <rect x="240" y="230" width="200" height="30" rx="8" class="node-alt"/>
-                <foreignObject x="240" y="230" width="200" height="30">
+                <rect x="240" y="150" width="200" height="30" rx="8" class="node-alt"/>
+                <foreignObject x="240" y="150" width="200" height="30">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
-                        File served from Hugging Face
+                        File downloaded from HF
                     </div>
                 </foreignObject>
             </svg>
         </div>
         <ul class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark list-disc pl-5 space-y-1">
-            <li><strong>Permanent links</strong> are handled entirely by Vercel's static redirect rules &mdash; the Python function never even runs, so they're as fast as a link can be.</li>
-            <li><strong>Expiring links</strong> must go through the backend on every open, since something has to check "has this passed its expiry time yet?" before deciding where to send you.</li>
-            <li>Nothing is ever deleted. An expired link just stops redirecting &mdash; the file stays in the dataset.</li>
+            <li>Since the python server never wakes up to process the link, cold-starts are completely eliminated.</li>
+            <li>Files are instantly redirected and served directly off Hugging Face's global CDN.</li>
         </ul>
     </section>
 
@@ -274,8 +214,8 @@
     <section class="mb-14">
         <h2 class="text-xl font-bold mb-3">4. Uploading from a URL</h2>
         <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mb-4">
-            Instead of uploading from your device, you can hand the tool a link and have the server fetch
-            and re-host it &mdash; useful for re-hosting an image or file that's only temporarily available elsewhere.
+            Instead of uploading from your device, you can hand the tool a link and have the server fetch 
+            and re-host it &mdash; useful for backing up an image or file that's only temporarily available elsewhere.
         </p>
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto">
             <svg viewBox="0 0 680 100" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
@@ -285,7 +225,6 @@
                         You paste a URL
                     </div>
                 </foreignObject>
-
                 <path d="M160,50 L250,50" class="arrow"/>
                 
                 <rect x="250" y="30" width="180" height="40" rx="10" class="node"/>
@@ -294,31 +233,24 @@
                         Backend fetches the URL
                     </div>
                 </foreignObject>
-
                 <path d="M430,50 L520,50" class="arrow"/>
                 
                 <rect x="520" y="30" width="150" height="40" rx="10" class="node-alt"/>
                 <foreignObject x="520" y="30" width="150" height="40">
                     <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
-                        Uploaded to HF, same as normal
+                        Uploaded to HF normally
                     </div>
                 </foreignObject>
             </svg>
         </div>
-        <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mt-3">
-            Same 4.4&nbsp;MB size limit applies to the fetched file, and it supports the same custom ID and expiry options.
-        </p>
     </section>
 
     <!-- ===================== Section: Batch links ===================== -->
     <section class="mb-14">
         <h2 class="text-xl font-bold mb-3">5. Batch links</h2>
         <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mb-4">
-            Upload more than one file at once and, alongside each file's own link, you also get a single
-            shareable <code>/batch/&lt;id&gt;</code> link that opens a page listing every file from that batch.
-            If you picked an expiry when uploading, that same expiry applies to the batch page itself &mdash;
-            once it passes, the batch link stops working too, even though the individual files' expiry is
-            still checked separately each time you open them.
+            Upload more than one file at once and, alongside each file's own link, you also get a single 
+            shareable <code>/batch/&lt;id&gt;</code> link that opens a page listing every file from that upload.
         </p>
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto">
             <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
@@ -328,7 +260,6 @@
                         Upload 3+ files together
                     </div>
                 </foreignObject>
-
                 <path d="M120,60 L120,90" class="arrow"/>
                 
                 <rect x="20" y="90" width="200" height="50" rx="10" class="node"/>
@@ -338,7 +269,6 @@
                         <span class="text-[10px] opacity-80 font-normal">gets its own item_id</span>
                     </div>
                 </foreignObject>
-
                 <path d="M220,115 L340,115" class="arrow"/>
                 
                 <rect x="340" y="90" width="200" height="50" rx="10" class="node"/>
@@ -348,7 +278,6 @@
                         <span class="text-[10px] opacity-80 font-normal">_batches/&lt;batch_id&gt;.json</span>
                     </div>
                 </foreignObject>
-
                 <path d="M540,115 L620,115 L620,150" class="arrow"/>
                 
                 <rect x="510" y="150" width="150" height="30" rx="8" class="node-alt"/>
@@ -385,10 +314,6 @@
                             <td class="px-4 py-3 text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark align-top">Single-file uploads only, sanitized to letters/numbers/dot/dash/underscore</td>
                         </tr>
                         <tr class="border-b border-m3-surfaceContainerHighest dark:border-m3-surfaceContainerHighestDark">
-                            <td class="px-4 py-3 font-semibold align-top">Expiry</td>
-                            <td class="px-4 py-3 text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark align-top">Optional: 1h / 1d / 7d / 30d / never. Disables the link only &mdash; the file itself is never deleted</td>
-                        </tr>
-                        <tr class="border-b border-m3-surfaceContainerHighest dark:border-m3-surfaceContainerHighestDark">
                             <td class="px-4 py-3 font-semibold align-top">Deletion</td>
                             <td class="px-4 py-3 text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark align-top">Not supported by design</td>
                         </tr>
@@ -413,8 +338,6 @@
     <div class="w-full text-center text-xs font-medium text-m3-outline dark:text-m3-outlineDark mt-10 mb-4">
         &copy; 2026 <a href="https://github.com/notamitgamer">notamitgamer</a>
     </div>
-
 </div>
-
 </body>
 </html>
