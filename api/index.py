@@ -3,12 +3,12 @@ import re
 import json
 import random
 import string
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import httpx
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
-from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
+from fastapi.responses import HTMLResponse
 from huggingface_hub import HfApi, hf_hub_download
 from huggingface_hub.utils import EntryNotFoundError
 
@@ -28,15 +28,8 @@ MAX_UPLOAD_BYTES = int(4.4 * 1024 * 1024)  # stay under Vercel's 4.5MB body limi
 
 _SAFE_ID_RE = re.compile(r"[^a-zA-Z0-9._-]+")
 
-
 def sanitize_id(raw: str, ext: str) -> str:
-    """Turn a user-supplied custom_id into a safe repo path segment.
-
-    - strips anything that isn't alnum, dot, dash, underscore
-    - removes leading dots/dashes (no path traversal, no dotfiles)
-    - enforces a sane max length
-    - re-appends the original extension if missing
-    """
+    """Turn a user-supplied custom_id into a safe repo path segment."""
     raw = raw.strip()
     raw = raw.replace("/", "-").replace("\\", "-")
     raw = _SAFE_ID_RE.sub("", raw)
@@ -48,24 +41,20 @@ def sanitize_id(raw: str, ext: str) -> str:
         raw += ext
     return raw
 
-
 def random_id(ext: str) -> str:
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     random_str = "".join(random.choices(string.ascii_letters + string.digits, k=6))
     return f"{timestamp}-{random_str}{ext}"
-
 
 def random_batch_id() -> str:
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     random_str = "".join(random.choices(string.ascii_letters + string.digits, k=8))
     return f"{timestamp}-{random_str}"
 
-
 def get_api() -> HfApi:
     if not HF_TOKEN:
         raise HTTPException(status_code=500, detail="HF_TOKEN environment variable is not set")
     return HfApi()
-
 
 def ensure_repo(api: HfApi):
     api.create_repo(
@@ -76,7 +65,6 @@ def ensure_repo(api: HfApi):
         private=False,
     )
 
-
 def upload_bytes(api: HfApi, content: bytes, path_in_repo: str):
     api.upload_file(
         path_or_fileobj=content,
@@ -86,47 +74,29 @@ def upload_bytes(api: HfApi, content: bytes, path_in_repo: str):
         token=HF_TOKEN,
     )
 
-
-def write_meta(api: HfApi, item_id: str, expires_at: Optional[str]):
-    if not expires_at:
-        return
-    meta = {"expires_at": expires_at}
-    upload_bytes(api, json.dumps(meta).encode(), f"{item_id}.meta.json")
-
-
-def raw_url(item_id: str) -> str:
-    return f"https://huggingface.co/datasets/{DATASET_REPO}/resolve/main/{item_id}"
-
-
 # ---------------------------------------------------------------------------
-# Upload a single file (used by /api/upload for each item)
+# Upload a single file
 # ---------------------------------------------------------------------------
 
 def handle_one_upload(
     api: HfApi,
     filename: str,
     content: bytes,
-    custom_id: Optional[str],
-    expires_in_minutes: Optional[int],
+    custom_id: Optional[str]
 ) -> dict:
     ext = os.path.splitext(filename)[1]
     item_id = sanitize_id(custom_id, ext) if custom_id else random_id(ext)
-
-    expires_at = None
-    if expires_in_minutes and expires_in_minutes > 0:
-        expires_at = (datetime.now(timezone.utc) + timedelta(minutes=expires_in_minutes)).isoformat()
-
+    
     upload_bytes(api, content, item_id)
-    write_meta(api, item_id, expires_at)
-
-    link_path = f"/api/file/{item_id}" if expires_at else f"/{item_id}"
+    
+    # Since expiry is removed, all links just use the root static redirect
+    link_path = f"/{item_id}"
+    
     return {
         "item_id": item_id,
         "link_path": link_path,
-        "expires_at": expires_at,
         "size": len(content),
     }
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -135,13 +105,11 @@ def handle_one_upload(
 @app.post("/api/upload")
 async def upload_files(
     files: List[UploadFile] = File(...),
-    custom_id: Optional[str] = Form(None),
-    expires_in_minutes: Optional[int] = Form(None),
+    custom_id: Optional[str] = Form(None)
 ):
     api = get_api()
     ensure_repo(api)
 
-    # custom_id only makes sense for a single file
     if custom_id and len(files) > 1:
         raise HTTPException(status_code=400, detail="custom_id can only be used when uploading a single file")
 
@@ -154,7 +122,7 @@ async def upload_files(
                 detail=f"'{f.filename}' exceeds the {MAX_UPLOAD_BYTES // (1024 * 1024)}MB request limit",
             )
         try:
-            result = handle_one_upload(api, f.filename or "file", content, custom_id, expires_in_minutes)
+            result = handle_one_upload(api, f.filename or "file", content, custom_id)
             results.append(result)
         except HTTPException:
             raise
@@ -162,30 +130,25 @@ async def upload_files(
             raise HTTPException(status_code=500, detail=f"Failed to upload '{f.filename}': {e}")
 
     batch_path = None
-    batch_expires_at = None
     if len(results) > 1:
         batch_id = random_batch_id()
-        batch_expires_at = results[0].get("expires_at")  # all files in a batch share the same expiry
         manifest = {
             "item_ids": [r["item_id"] for r in results],
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "expires_at": batch_expires_at,
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         upload_bytes(api, json.dumps(manifest).encode(), f"_batches/{batch_id}.json")
         batch_path = f"/batch/{batch_id}"
 
-    return {"files": results, "batch_path": batch_path, "batch_expires_at": batch_expires_at}
-
+    return {"files": results, "batch_path": batch_path}
 
 @app.post("/api/upload-url")
 async def upload_from_url(
     url: str = Form(...),
-    custom_id: Optional[str] = Form(None),
-    expires_in_minutes: Optional[int] = Form(None),
+    custom_id: Optional[str] = Form(None)
 ):
     if not url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="Only http/https URLs are supported")
-
+    
     api = get_api()
     ensure_repo(api)
 
@@ -204,39 +167,14 @@ async def upload_from_url(
         )
 
     filename = url.split("/")[-1].split("?")[0] or "file"
-
     try:
-        result = handle_one_upload(api, filename, content, custom_id, expires_in_minutes)
+        result = handle_one_upload(api, filename, content, custom_id)
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"files": [result]}
-
-
-@app.get("/api/file/{item_id:path}")
-async def serve_expiring_file(item_id: str):
-    """Dynamic redirect for links that were uploaded with an expiry."""
-    try:
-        meta_path = hf_hub_download(
-            repo_id=DATASET_REPO,
-            repo_type="dataset",
-            filename=f"{item_id}.meta.json",
-            token=HF_TOKEN,
-        )
-        with open(meta_path) as fh:
-            meta = json.load(fh)
-        expires_at = meta.get("expires_at")
-        if expires_at and datetime.fromisoformat(expires_at) < datetime.now(timezone.utc):
-            return JSONResponse(status_code=410, content={"detail": "This link has expired."})
-    except EntryNotFoundError:
-        pass  # no meta file -> treat as non-expiring
-    except Exception:
-        pass  # if metadata can't be checked, fail open rather than block a valid file
-
-    return RedirectResponse(url=raw_url(item_id), status_code=302)
-
 
 @app.get("/batch/{batch_id}", response_class=HTMLResponse)
 async def serve_batch(batch_id: str):
@@ -247,6 +185,7 @@ async def serve_batch(batch_id: str):
             repo_type="dataset",
             filename=f"_batches/{batch_id}.json",
             token=HF_TOKEN,
+            cache_dir="/tmp"  # Explicitly force /tmp to avoid Vercel Errno 30
         )
         with open(manifest_path) as fh:
             manifest = json.load(fh)
@@ -255,25 +194,14 @@ async def serve_batch(batch_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    expires_at = manifest.get("expires_at")
-    if expires_at and datetime.fromisoformat(expires_at) < datetime.now(timezone.utc):
-        return HTMLResponse(status_code=410, content=_batch_html([], expired=True))
-
     item_ids = manifest.get("item_ids", [])
-    files = []
-    for item_id in item_ids:
-        # if a file has an expiry meta, route through the checked path; otherwise link straight to HF
-        link_path = f"/api/file/{item_id}"
-        files.append({"item_id": item_id, "link_path": link_path})
+    files = [{"item_id": i, "link_path": f"/{i}"} for i in item_ids]
 
     return HTMLResponse(content=_batch_html(files))
 
-
-def _batch_html(files: list, not_found: bool = False, expired: bool = False) -> str:
+def _batch_html(files: list, not_found: bool = False) -> str:
     if not_found:
         body = '<p class="empty">Batch not found.</p>'
-    elif expired:
-        body = '<p class="empty">This batch link has expired.</p>'
     elif not files:
         body = '<p class="empty">This batch is empty.</p>'
     else:
@@ -299,11 +227,11 @@ def _batch_html(files: list, not_found: bool = False, expired: bool = False) -> 
   .wrap {{ max-width: 520px; margin: 0 auto; }}
   h1 {{ font-size: 1.4rem; margin-bottom: 1.5rem; }}
   .list {{ display: flex; flex-direction: column; gap: 0.5rem; }}
-  .row {{ display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  .row {{ display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; 
           background: #F1F1EA; padding: 0.9rem 1rem; border-radius: 12px; }}
   @media (prefers-color-scheme: dark) {{ .row {{ background: #2D2F2B; }} }}
   .name {{ font-size: 0.85rem; word-break: break-all; }}
-  .open {{ flex-shrink: 0; background: #386A20; color: #fff; text-decoration: none;
+  .open {{ flex-shrink: 0; background: #386A20; color: #fff; text-decoration: none; 
            font-size: 0.85rem; font-weight: 600; padding: 0.45rem 0.9rem; border-radius: 8px; }}
   @media (prefers-color-scheme: dark) {{ .open {{ background: #9CD67D; color: #0C3900; }} }}
   .empty {{ font-size: 0.9rem; opacity: 0.7; }}
