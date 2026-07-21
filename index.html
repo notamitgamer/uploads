@@ -393,6 +393,15 @@
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const data = JSON.parse(xhr.responseText);
+
+                        if (data.batch_path) {
+                            renderResultCard(resultsList, {
+                                item_id: "Batch Link (All Files)",
+                                link_path: data.batch_path,
+                                expires_at: data.batch_expires_at
+                            });
+                        }
+                        
                         data.files.forEach(item => renderResultCard(resultsList, item));
                         fileInput.value = ''; customIdInput.value = '';
                         resetDropdown('expiry-dd');
