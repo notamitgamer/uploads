@@ -217,21 +217,3 @@ async def serve_expiring_file(item_id: str):
         pass  # if metadata can't be checked, fail open rather than block a valid file
 
     return RedirectResponse(url=raw_url(item_id), status_code=302)
-
-
-@app.get("/api/files")
-async def list_files():
-    api = get_api()
-    try:
-        entries = api.list_repo_files(repo_id=DATASET_REPO, repo_type="dataset", token=HF_TOKEN)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    files = []
-    for name in entries:
-        if name.endswith(".meta.json") or name == ".gitattributes":
-            continue
-        files.append({"item_id": name, "url": raw_url(name)})
-
-    files.sort(key=lambda x: x["item_id"], reverse=True)
-    return {"files": files}
