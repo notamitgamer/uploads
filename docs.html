@@ -39,20 +39,29 @@
     <style>
         body { background-color: #FDFCFB; margin: 0; -webkit-font-smoothing: antialiased; }
         @media (prefers-color-scheme: dark) { body { background-color: #1A1C19; } }
+        
         .diagram-box { background: #F1F1EA; }
         @media (prefers-color-scheme: dark) { .diagram-box { background: #2D2F2B; } }
+        
         .node { fill: #D7E8CD; stroke: #386A20; }
         @media (prefers-color-scheme: dark) { .node { fill: #374B2E; stroke: #9CD67D; } }
+        
         .node-alt { fill: #E5E6DE; stroke: #74796D; }
         @media (prefers-color-scheme: dark) { .node-alt { fill: #434541; stroke: #8D9286; } }
+        
+        /* Note: Text classes are mostly preserved for arrows, boxes now use foreignObject html classes */
         .node-text { fill: #111F0F; font-family: 'Lexend', sans-serif; font-size: 12px; font-weight: 600; }
         @media (prefers-color-scheme: dark) { .node-text { fill: #D7E8CD; } }
+        
         .node-text-alt { fill: #1A1C19; font-family: 'Lexend', sans-serif; font-size: 12px; font-weight: 500; }
         @media (prefers-color-scheme: dark) { .node-text-alt { fill: #E3E3DC; } }
+        
         .arrow { stroke: #74796D; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
         @media (prefers-color-scheme: dark) { .arrow { stroke: #8D9286; } }
+        
         .arrow-label { fill: #43483E; font-family: 'Lexend', sans-serif; font-size: 10px; }
         @media (prefers-color-scheme: dark) { .arrow-label { fill: #C3C8BC; } }
+        
         code { background: #E5E6DE; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
         @media (prefers-color-scheme: dark) { code { background: #434541; } }
     </style>
@@ -87,20 +96,34 @@
                         <path d="M0,0 L8,4 L0,8 Z" class="node-alt" />
                     </marker>
                 </defs>
+                
                 <rect x="20" y="45" width="150" height="50" rx="12" class="node-alt"/>
-                <text x="95" y="65" text-anchor="middle" class="node-text-alt">Browser</text>
-                <text x="95" y="80" text-anchor="middle" class="node-text-alt" font-size="10">index.html</text>
+                <foreignObject x="20" y="45" width="150" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-1 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        Browser
+                        <span class="text-[10px] opacity-80 font-normal">index.html</span>
+                    </div>
+                </foreignObject>
 
                 <rect x="265" y="45" width="150" height="50" rx="12" class="node"/>
-                <text x="340" y="65" text-anchor="middle" class="node-text">FastAPI backend</text>
-                <text x="340" y="80" text-anchor="middle" class="node-text" font-size="10">index.py (Vercel)</text>
+                <foreignObject x="265" y="45" width="150" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-1 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        FastAPI backend
+                        <span class="text-[10px] opacity-80 font-normal">index.py (Vercel)</span>
+                    </div>
+                </foreignObject>
 
                 <rect x="510" y="45" width="150" height="50" rx="12" class="node-alt"/>
-                <text x="585" y="65" text-anchor="middle" class="node-text-alt">HF Dataset</text>
-                <text x="585" y="80" text-anchor="middle" class="node-text-alt" font-size="10">notamitgamer/uploads</text>
+                <foreignObject x="510" y="45" width="150" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-1 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        HF Dataset
+                        <span class="text-[10px] opacity-80 font-normal">notamitgamer/uploads</span>
+                    </div>
+                </foreignObject>
 
                 <path d="M170,65 L265,65" class="arrow"/>
                 <text x="217" y="55" text-anchor="middle" class="arrow-label">HTTP request</text>
+                
                 <path d="M415,65 L510,65" class="arrow"/>
                 <text x="462" y="55" text-anchor="middle" class="arrow-label">HF API</text>
             </svg>
@@ -118,26 +141,49 @@
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto mb-4">
             <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
                 <rect x="20" y="10" width="200" height="40" rx="10" class="node-alt"/>
-                <text x="120" y="35" text-anchor="middle" class="node-text-alt">Select / drop / paste file(s)</text>
+                <foreignObject x="20" y="10" width="200" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        Select / drop / paste file(s)
+                    </div>
+                </foreignObject>
 
                 <path d="M120,50 L120,80" class="arrow"/>
+                
                 <rect x="20" y="80" width="200" height="40" rx="10" class="node-alt"/>
-                <text x="120" y="105" text-anchor="middle" class="node-text-alt">POST /api/upload</text>
+                <foreignObject x="20" y="80" width="200" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        POST /api/upload
+                    </div>
+                </foreignObject>
 
                 <path d="M120,120 L120,150" class="arrow"/>
+                
                 <rect x="20" y="150" width="200" height="50" rx="10" class="node"/>
-                <text x="120" y="170" text-anchor="middle" class="node-text">Sanitize custom_id</text>
-                <text x="120" y="184" text-anchor="middle" class="node-text" font-size="10">or generate random ID</text>
+                <foreignObject x="20" y="150" width="200" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        Sanitize custom_id
+                        <span class="text-[10px] opacity-80 font-normal">or generate random ID</span>
+                    </div>
+                </foreignObject>
 
                 <path d="M120,200 L120,230" class="arrow"/>
+                
                 <rect x="20" y="230" width="200" height="40" rx="10" class="node"/>
-                <text x="120" y="255" text-anchor="middle" class="node-text">Upload bytes to HF dataset</text>
+                <foreignObject x="20" y="230" width="200" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        Upload bytes to HF dataset
+                    </div>
+                </foreignObject>
 
                 <path d="M220,250 L340,250" class="arrow"/>
+                
                 <rect x="340" y="230" width="200" height="60" rx="10" class="node"/>
-                <text x="440" y="252" text-anchor="middle" class="node-text">Expiry chosen?</text>
-                <text x="440" y="268" text-anchor="middle" class="node-text" font-size="10">write item.meta.json</text>
-                <text x="440" y="280" text-anchor="middle" class="node-text" font-size="10">with expires_at</text>
+                <foreignObject x="340" y="230" width="200" height="60">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        Expiry chosen?
+                        <span class="text-[10px] opacity-80 font-normal mt-0.5">write item.meta.json<br/>with expires_at</span>
+                    </div>
+                </foreignObject>
 
                 <path d="M440,290 L440,310 L120,310 L120,300" class="arrow"/>
                 <text x="280" y="305" text-anchor="middle" class="arrow-label">return link to browser</text>
@@ -160,34 +206,61 @@
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto mb-4">
             <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
                 <rect x="250" y="10" width="180" height="40" rx="10" class="node-alt"/>
-                <text x="340" y="35" text-anchor="middle" class="node-text-alt">Someone opens the link</text>
+                <foreignObject x="250" y="10" width="180" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        Someone opens the link
+                    </div>
+                </foreignObject>
 
                 <path d="M310,50 L150,90" class="arrow"/>
                 <text x="200" y="70" text-anchor="middle" class="arrow-label">no expiry set</text>
+                
                 <path d="M370,50 L530,90" class="arrow"/>
                 <text x="480" y="70" text-anchor="middle" class="arrow-label">expiry set</text>
 
                 <rect x="30" y="90" width="240" height="40" rx="10" class="node"/>
-                <text x="150" y="115" text-anchor="middle" class="node-text">/&lt;item_id&gt; &mdash; static redirect</text>
+                <foreignObject x="30" y="90" width="240" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        /&lt;item_id&gt; &mdash; static redirect
+                    </div>
+                </foreignObject>
 
                 <path d="M150,130 L150,160" class="arrow"/>
+                
                 <rect x="30" y="160" width="240" height="50" rx="10" class="node"/>
-                <text x="150" y="180" text-anchor="middle" class="node-text">vercel.json redirect rule</text>
-                <text x="150" y="195" text-anchor="middle" class="node-text" font-size="10">instant, no function cold-start</text>
+                <foreignObject x="30" y="160" width="240" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        vercel.json redirect rule
+                        <span class="text-[10px] opacity-80 font-normal">instant, no function cold-start</span>
+                    </div>
+                </foreignObject>
 
                 <rect x="410" y="90" width="240" height="40" rx="10" class="node"/>
-                <text x="530" y="115" text-anchor="middle" class="node-text">/api/file/&lt;item_id&gt;</text>
+                <foreignObject x="410" y="90" width="240" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        /api/file/&lt;item_id&gt;
+                    </div>
+                </foreignObject>
 
                 <path d="M530,130 L530,160" class="arrow"/>
+                
                 <rect x="410" y="160" width="240" height="60" rx="10" class="node"/>
-                <text x="530" y="180" text-anchor="middle" class="node-text">Backend checks item.meta.json</text>
-                <text x="530" y="196" text-anchor="middle" class="node-text" font-size="10">expired? &rarr; HTTP 410</text>
-                <text x="530" y="210" text-anchor="middle" class="node-text" font-size="10">valid? &rarr; 302 redirect to HF</text>
+                <foreignObject x="410" y="160" width="240" height="60">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        Backend checks item.meta.json
+                        <span class="text-[10px] opacity-80 font-normal mt-0.5">expired? &rarr; HTTP 410<br/>valid? &rarr; 302 redirect to HF</span>
+                    </div>
+                </foreignObject>
 
                 <path d="M150,210 L150,230 L340,230" class="arrow"/>
                 <path d="M530,220 L530,230 L340,230" class="arrow"/>
+                
                 <rect x="240" y="230" width="200" height="30" rx="8" class="node-alt"/>
-                <text x="340" y="250" text-anchor="middle" class="node-text-alt">File served from Hugging Face</text>
+                <foreignObject x="240" y="230" width="200" height="30">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        File served from Hugging Face
+                    </div>
+                </foreignObject>
             </svg>
         </div>
         <ul class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark list-disc pl-5 space-y-1">
@@ -207,15 +280,29 @@
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto">
             <svg viewBox="0 0 680 100" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
                 <rect x="10" y="30" width="150" height="40" rx="10" class="node-alt"/>
-                <text x="85" y="55" text-anchor="middle" class="node-text-alt">You paste a URL</text>
+                <foreignObject x="10" y="30" width="150" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        You paste a URL
+                    </div>
+                </foreignObject>
 
                 <path d="M160,50 L250,50" class="arrow"/>
+                
                 <rect x="250" y="30" width="180" height="40" rx="10" class="node"/>
-                <text x="340" y="55" text-anchor="middle" class="node-text">Backend fetches the URL</text>
+                <foreignObject x="250" y="30" width="180" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        Backend fetches the URL
+                    </div>
+                </foreignObject>
 
                 <path d="M430,50 L520,50" class="arrow"/>
+                
                 <rect x="520" y="30" width="150" height="40" rx="10" class="node-alt"/>
-                <text x="595" y="55" text-anchor="middle" class="node-text-alt">Uploaded to HF, same as normal</text>
+                <foreignObject x="520" y="30" width="150" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        Uploaded to HF, same as normal
+                    </div>
+                </foreignObject>
             </svg>
         </div>
         <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mt-3">
@@ -229,25 +316,47 @@
         <p class="text-sm leading-relaxed text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mb-4">
             Upload more than one file at once and, alongside each file's own link, you also get a single
             shareable <code>/batch/&lt;id&gt;</code> link that opens a page listing every file from that batch.
+            If you picked an expiry when uploading, that same expiry applies to the batch page itself &mdash;
+            once it passes, the batch link stops working too, even though the individual files' expiry is
+            still checked separately each time you open them.
         </p>
         <div class="diagram-box rounded-[20px] p-4 overflow-x-auto">
             <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg" class="min-w-[600px]">
                 <rect x="20" y="20" width="200" height="40" rx="10" class="node-alt"/>
-                <text x="120" y="45" text-anchor="middle" class="node-text-alt">Upload 3+ files together</text>
+                <foreignObject x="20" y="20" width="200" height="40">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        Upload 3+ files together
+                    </div>
+                </foreignObject>
 
                 <path d="M120,60 L120,90" class="arrow"/>
+                
                 <rect x="20" y="90" width="200" height="50" rx="10" class="node"/>
-                <text x="120" y="110" text-anchor="middle" class="node-text">Each file uploaded normally</text>
-                <text x="120" y="125" text-anchor="middle" class="node-text" font-size="10">gets its own item_id</text>
+                <foreignObject x="20" y="90" width="200" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        Each file uploaded normally
+                        <span class="text-[10px] opacity-80 font-normal">gets its own item_id</span>
+                    </div>
+                </foreignObject>
 
                 <path d="M220,115 L340,115" class="arrow"/>
+                
                 <rect x="340" y="90" width="200" height="50" rx="10" class="node"/>
-                <text x="440" y="110" text-anchor="middle" class="node-text">Manifest written</text>
-                <text x="440" y="125" text-anchor="middle" class="node-text" font-size="10">_batches/&lt;batch_id&gt;.json</text>
+                <foreignObject x="340" y="90" width="200" height="50">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[12px] font-semibold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark leading-tight">
+                        Manifest written
+                        <span class="text-[10px] opacity-80 font-normal">_batches/&lt;batch_id&gt;.json</span>
+                    </div>
+                </foreignObject>
 
                 <path d="M540,115 L620,115 L620,150" class="arrow"/>
+                
                 <rect x="510" y="150" width="150" height="30" rx="8" class="node-alt"/>
-                <text x="585" y="170" text-anchor="middle" class="node-text-alt" font-size="10">/batch/&lt;id&gt; page</text>
+                <foreignObject x="510" y="150" width="150" height="30">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="w-full h-full flex flex-col items-center justify-center text-center px-2 text-[10px] font-medium text-m3-onSurface dark:text-m3-onSurfaceDark leading-tight">
+                        /batch/&lt;id&gt; page
+                    </div>
+                </foreignObject>
             </svg>
         </div>
     </section>
