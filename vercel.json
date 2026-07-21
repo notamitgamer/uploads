@@ -1,19 +1,18 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
-      "source": "/:filename((?!docs$|docs\\.html$).*)",
+      "source": "/:filename((?!docs$|docs\\.html$|index\\.html$)[^/]+)",
       "destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
       "permanent": false
     }
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:match*",
       "destination": "/api/index"
     },
     {
-      "source": "/batch/(.*)",
+      "source": "/batch/:match*",
       "destination": "/api/index"
     },
     {
