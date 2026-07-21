@@ -51,9 +51,6 @@
         .hide { display: none !important; }
         .tab-active { border-bottom: 2px solid #386A20; color: #386A20; }
         @media (prefers-color-scheme: dark) { .tab-active { border-bottom-color: #9CD67D; color: #9CD67D; } }
-        @keyframes indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
-        .indeterminate-bar { animation: indeterminate 1.2s ease-in-out infinite; }
-
         /* Custom dropdown */
         .dd { position: relative; }
         .dd-trigger { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; }
@@ -68,6 +65,11 @@
         .dd-option { cursor: pointer; }
         .dd-option.selected { color: #386A20; font-weight: 600; }
         @media (prefers-color-scheme: dark) { .dd-option.selected { color: #9CD67D; } }
+
+        /* Copy button success feedback */
+        .copy-btn .copy-icon { display: inline-block; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .copy-btn.copied .copy-icon { transform: scale(1.25); }
+        .copy-btn.copied { background-color: #2E7D32 !important; }
     </style>
 </head>
 <body class="bg-m3-background dark:bg-m3-backgroundDark text-m3-onSurface dark:text-m3-onSurfaceDark flex flex-col items-center min-h-screen p-4 font-sans">
@@ -85,7 +87,6 @@
         <div class="flex gap-6 mb-6 border-b border-m3-surfaceContainerHighest dark:border-m3-surfaceContainerHighestDark">
             <button data-tab="upload-tab" class="tab-btn tab-active pb-2 text-sm font-semibold">Upload</button>
             <button data-tab="url-tab" class="tab-btn pb-2 text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">From URL</button>
-            <button data-tab="browse-tab" class="tab-btn pb-2 text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Browse</button>
         </div>
 
         <!-- ==================== UPLOAD TAB ==================== -->
@@ -129,13 +130,18 @@
                 </div>
             </div>
 
-            <div id="processing-container" class="hide mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Saving to Hugging Face&hellip;</span>
-                    <span id="processing-timer" class="text-sm font-bold text-m3-primary dark:text-m3-primaryDark">0s</span>
+            <div id="processing-container" class="hide animate-pulse bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark p-4 rounded-[16px] mb-6">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-5 h-5 rounded-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                    <div class="w-32 h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
                 </div>
-                <div class="w-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark h-2 rounded-none overflow-hidden relative">
-                    <div class="indeterminate-bar bg-m3-primary dark:bg-m3-primaryDark h-2 w-1/3 absolute"></div>
+                <div class="bg-m3-background dark:bg-m3-backgroundDark p-3 rounded-[8px] flex flex-col gap-3">
+                    <div class="w-full h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                    <div class="w-3/4 h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                    <div class="flex gap-2 w-full mt-1">
+                        <div class="flex-1 h-9 rounded-[8px] bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                        <div class="flex-1 h-9 rounded-[8px] bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+                    </div>
                 </div>
             </div>
 
@@ -184,15 +190,6 @@
                     <span id="url-error-text" class="text-sm font-medium mt-0.5"></span>
                 </div>
             </div>
-        </div>
-
-        <!-- ==================== BROWSE TAB ==================== -->
-        <div id="browse-tab" class="tab-panel hide">
-            <button id="refresh-files-btn" class="flex items-center gap-2 text-sm font-semibold text-m3-primary dark:text-m3-primaryDark mb-4">
-                <span class="material-symbols-outlined text-[18px]">refresh</span> Refresh
-            </button>
-            <div id="browse-list" class="flex flex-col gap-2"></div>
-            <div id="browse-empty" class="hide text-sm text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">No files yet.</div>
         </div>
 
     </div>
@@ -262,7 +259,6 @@
                 btn.classList.remove('text-m3-onSurfaceVariant', 'dark:text-m3-onSurfaceVariantDark');
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hide'));
                 document.getElementById(btn.dataset.tab).classList.remove('hide');
-                if (btn.dataset.tab === 'browse-tab') loadFileList();
             });
         });
 
@@ -274,7 +270,6 @@
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
         const processingContainer = document.getElementById('processing-container');
-        const processingTimer = document.getElementById('processing-timer');
         const resultsList = document.getElementById('results-list');
         const errorContainer = document.getElementById('error-container');
         const errorText = document.getElementById('error-text');
@@ -330,7 +325,7 @@
                     <div class="text-sm break-all select-all font-medium link-text">${finalUrl}</div>
                     <div class="flex gap-2 w-full">
                         <button class="copy-btn flex-1 bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-3 py-2 rounded-[8px] text-sm font-medium flex items-center justify-center gap-1.5">
-                            <span class="material-symbols-outlined text-[18px]">content_copy</span><span>Copy</span>
+                            <span class="material-symbols-outlined copy-icon text-[18px]">content_copy</span><span class="copy-label">Copy</span>
                         </button>
                         <a href="${finalUrl}" target="_blank" class="open-btn flex-1 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark px-3 py-2 rounded-[8px] text-sm font-medium flex items-center justify-center gap-1.5 no-underline">
                             <span class="material-symbols-outlined text-[18px]">open_in_new</span><span>Open</span>
@@ -342,8 +337,17 @@
                 </div>`;
             card.querySelector('.copy-btn').addEventListener('click', function () {
                 navigator.clipboard.writeText(finalUrl).catch(() => {});
-                const span = this.querySelector('span:last-child');
-                span.textContent = 'Copied'; setTimeout(() => span.textContent = 'Copy', 1500);
+                const btn = this;
+                const icon = btn.querySelector('.copy-icon');
+                const label = btn.querySelector('.copy-label');
+                btn.classList.add('copied');
+                icon.textContent = 'check';
+                label.textContent = 'Copied';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    icon.textContent = 'content_copy';
+                    label.textContent = 'Copy';
+                }, 1500);
             });
             card.querySelector('.qr-btn').addEventListener('click', () => openQrModal(finalUrl, item.item_id));
             container.prepend(card);
@@ -378,13 +382,11 @@
                     if (pct === 100) {
                         progressContainer.classList.remove('show'); progressContainer.classList.add('hide');
                         processingContainer.classList.remove('hide'); processingContainer.classList.add('show');
-                        startProcessingTimer();
                     }
                 }
             };
 
             xhr.onload = function () {
-                stopProcessingTimer();
                 progressContainer.classList.remove('show'); progressContainer.classList.add('hide');
                 processingContainer.classList.remove('show'); processingContainer.classList.add('hide');
 
@@ -408,26 +410,12 @@
             };
 
             xhr.onerror = function () {
-                stopProcessingTimer();
                 progressContainer.classList.remove('show'); progressContainer.classList.add('hide');
                 processingContainer.classList.remove('show'); processingContainer.classList.add('hide');
                 showError(errorContainer, errorText, "System error: Could not connect to server.");
             };
 
             xhr.send(formData);
-        }
-
-        let processingInterval = null;
-        function startProcessingTimer() {
-            let seconds = 0;
-            processingTimer.innerText = '0s';
-            processingInterval = setInterval(() => {
-                seconds += 1;
-                processingTimer.innerText = seconds + 's';
-            }, 1000);
-        }
-        function stopProcessingTimer() {
-            if (processingInterval) { clearInterval(processingInterval); processingInterval = null; }
         }
 
         // ---------- URL tab ----------
@@ -468,36 +456,6 @@
             }
         });
 
-        // ---------- Browse tab ----------
-        const browseList = document.getElementById('browse-list');
-        const browseEmpty = document.getElementById('browse-empty');
-        document.getElementById('refresh-files-btn').addEventListener('click', loadFileList);
-
-        async function loadFileList() {
-            browseList.innerHTML = '<div class="text-sm text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Loading...</div>';
-            browseEmpty.classList.add('hide');
-            try {
-                const res = await fetch('/api/files');
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || 'Could not load files.');
-                browseList.innerHTML = '';
-                if (!data.files.length) { browseEmpty.classList.remove('hide'); return; }
-                data.files.forEach(f => {
-                    const row = document.createElement('div');
-                    row.className = "flex items-center justify-between gap-2 bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark px-4 py-3 rounded-[12px]";
-                    row.innerHTML = `
-                        <span class="text-sm truncate flex-1">${f.item_id}</span>
-                        <a href="${f.url}" target="_blank" class="text-m3-primary dark:text-m3-primaryDark flex items-center">
-                            <span class="material-symbols-outlined text-[20px]">open_in_new</span>
-                        </a>`;
-                    browseList.appendChild(row);
-                });
-            } catch (err) {
-                browseList.innerHTML = '';
-                showError(errorContainer, errorText, err.message);
-            }
-        }
-
         // ---------- QR modal ----------
         const qrModal = document.getElementById('qr-modal');
         const qrCodeBox = document.getElementById('qr-code-box');
@@ -514,12 +472,14 @@
             qrModal.classList.remove('show-flex'); qrModal.classList.add('hide');
         });
         qrDownloadBtn.addEventListener('click', () => {
-            const img = qrCodeBox.querySelector('img') || qrCodeBox.querySelector('canvas');
-            const src = img.tagName === 'CANVAS' ? img.toDataURL('image/png') : img.src;
+            const canvas = qrCodeBox.querySelector('canvas');
+            if (!canvas) return;
             const a = document.createElement('a');
-            a.href = src;
+            a.href = canvas.toDataURL('image/png');
             a.download = qrFilename + '-qr.png';
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
         });
     </script>
 </body>
