@@ -5,52 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Hub</title>
 
-    <!-- Fonts: Lexend & Material Symbols -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Lexend', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Lexend', 'sans-serif'] },
                     colors: {
                         m3: {
-                            background: '#FDFCFB',
-                            backgroundDark: '#1A1C19',
-                            surface: '#FDFCFB',
-                            surfaceDark: '#1A1C19',
-                            surfaceContainer: '#F1F1EA',
-                            surfaceContainerDark: '#2D2F2B',
-                            surfaceContainerHigh: '#EBEBE4',
-                            surfaceContainerHighDark: '#333531',
-                            surfaceContainerHighest: '#E5E6DE',
-                            surfaceContainerHighestDark: '#434541',
-                            onSurface: '#1A1C19',
-                            onSurfaceDark: '#E3E3DC',
-                            onSurfaceVariant: '#43483E',
-                            onSurfaceVariantDark: '#C3C8BC',
-                            primary: '#386A20',
-                            primaryDark: '#9CD67D',
-                            onPrimary: '#FFFFFF',
-                            onPrimaryDark: '#0C3900',
-                            secondaryContainer: '#D7E8CD',
-                            secondaryContainerDark: '#374B2E',
-                            onSecondaryContainer: '#111F0F',
-                            onSecondaryContainerDark: '#D7E8CD',
-                            error: '#BA1A1A',
-                            errorDark: '#FFB4AB',
-                            errorContainer: '#FFDAD6',
-                            errorContainerDark: '#93000A',
-                            onErrorContainer: '#410002',
-                            onErrorContainerDark: '#FFDAD6',
-                            outline: '#74796D',
-                            outlineDark: '#8D9286',
+                            background: '#FDFCFB', backgroundDark: '#1A1C19',
+                            surface: '#FDFCFB', surfaceDark: '#1A1C19',
+                            surfaceContainer: '#F1F1EA', surfaceContainerDark: '#2D2F2B',
+                            surfaceContainerHigh: '#EBEBE4', surfaceContainerHighDark: '#333531',
+                            surfaceContainerHighest: '#E5E6DE', surfaceContainerHighestDark: '#434541',
+                            onSurface: '#1A1C19', onSurfaceDark: '#E3E3DC',
+                            onSurfaceVariant: '#43483E', onSurfaceVariantDark: '#C3C8BC',
+                            primary: '#386A20', primaryDark: '#9CD67D',
+                            onPrimary: '#FFFFFF', onPrimaryDark: '#0C3900',
+                            secondaryContainer: '#D7E8CD', secondaryContainerDark: '#374B2E',
+                            onSecondaryContainer: '#111F0F', onSecondaryContainerDark: '#D7E8CD',
+                            error: '#BA1A1A', errorDark: '#FFB4AB',
+                            errorContainer: '#FFDAD6', errorContainerDark: '#93000A',
+                            onErrorContainer: '#410002', onErrorContainerDark: '#FFDAD6',
+                            outline: '#74796D', outlineDark: '#8D9286',
                         }
                     }
                 }
@@ -59,99 +42,143 @@
     </script>
 
     <style>
-        body {
-            background-color: #FDFCFB; 
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-        }
-        @media (prefers-color-scheme: dark) {
-            body { background-color: #1A1C19; }
-        }
-        input:focus {
-            outline: none;
-            border-bottom-color: #386A20;
-        }
-        @media (prefers-color-scheme: dark) {
-            input:focus { border-bottom-color: #9CD67D; }
-        }
+        body { background-color: #FDFCFB; margin: 0; -webkit-font-smoothing: antialiased; }
+        @media (prefers-color-scheme: dark) { body { background-color: #1A1C19; } }
+        input:focus, select:focus { outline: none; border-bottom-color: #386A20; }
+        @media (prefers-color-scheme: dark) { input:focus, select:focus { border-bottom-color: #9CD67D; } }
         .show { display: block !important; }
         .show-flex { display: flex !important; }
         .hide { display: none !important; }
+        .tab-active { border-bottom: 2px solid #386A20; color: #386A20; }
+        @media (prefers-color-scheme: dark) { .tab-active { border-bottom-color: #9CD67D; color: #9CD67D; } }
+        @keyframes indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+        .indeterminate-bar { animation: indeterminate 1.2s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-m3-background dark:bg-m3-backgroundDark text-m3-onSurface dark:text-m3-onSurfaceDark flex flex-col items-center justify-center min-h-screen p-4 font-sans">
+<body class="bg-m3-background dark:bg-m3-backgroundDark text-m3-onSurface dark:text-m3-onSurfaceDark flex flex-col items-center min-h-screen p-4 font-sans">
 
-    <div id="ui-container" class="w-full max-w-[480px] show">
-        
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold tracking-tight">Upload</h1>
-            <p class="text-sm text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mt-1">Store files permanently on Hugging Face</p>
-        </div>
+    <div id="ui-container" class="w-full max-w-[520px] mt-8">
 
-        <div class="flex flex-col gap-1.5 mb-6">
-            <label for="custom-id" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Custom ID (Optional)</label>
-            <input type="text" id="custom-id" placeholder="e.g., source-code" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark text-m3-onSurface dark:text-m3-onSurfaceDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark placeholder-gray-500">
-        </div>
-
-        <div id="dropzone" class="bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark hover:bg-m3-surfaceContainerHigh dark:hover:bg-m3-surfaceContainerHighDark rounded-[24px] p-10 flex flex-col items-center justify-center cursor-pointer mb-6 border border-transparent transition-colors">
-            <span class="material-symbols-outlined text-[48px] text-m3-primary dark:text-m3-primaryDark mb-4">upload</span>
-            <span class="text-base font-semibold text-m3-onSurface dark:text-m3-onSurfaceDark">Click or drag file</span>
-            <span class="text-sm mt-1 text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Max 4.5MB per file</span>
-            <input type="file" id="file-input" class="hidden">
-        </div>
-
-        <div id="progress-container" class="hide mb-6">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Uploading...</span>
-                <span id="progress-text" class="text-sm font-bold text-m3-primary dark:text-m3-primaryDark">0%</span>
-            </div>
-            <div class="w-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark h-2 rounded-none">
-                <div id="progress-bar" class="bg-m3-primary dark:bg-m3-primaryDark h-2 rounded-none" style="width: 0%;"></div>
+        <div class="mb-6 flex items-end justify-between">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Upload</h1>
+                <p class="text-sm text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark mt-1">Store files permanently on Hugging Face</p>
             </div>
         </div>
 
-        <div id="skeleton-container" class="hide animate-pulse bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark p-4 rounded-[16px] mb-6">
-            <div class="flex items-center gap-2 mb-3">
-                <div class="w-5 h-5 rounded-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
-                <div class="w-32 h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+        <!-- Tabs -->
+        <div class="flex gap-6 mb-6 border-b border-m3-surfaceContainerHighest dark:border-m3-surfaceContainerHighestDark">
+            <button data-tab="upload-tab" class="tab-btn tab-active pb-2 text-sm font-semibold">Upload</button>
+            <button data-tab="url-tab" class="tab-btn pb-2 text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">From URL</button>
+            <button data-tab="browse-tab" class="tab-btn pb-2 text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Browse</button>
+        </div>
+
+        <!-- ==================== UPLOAD TAB ==================== -->
+        <div id="upload-tab" class="tab-panel">
+            <div class="flex flex-col gap-1.5 mb-4">
+                <label for="custom-id" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Custom ID (single file only, optional)</label>
+                <input type="text" id="custom-id" placeholder="e.g., source-code" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark placeholder-gray-500">
             </div>
-            <div class="bg-m3-background dark:bg-m3-backgroundDark p-3 rounded-[8px] flex flex-col gap-3">
-                <div class="w-full h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
-                <div class="w-3/4 h-4 rounded bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
-                <div class="flex gap-2 w-full mt-1">
-                    <div class="flex-1 h-9 rounded-[8px] bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
-                    <div class="flex-1 h-9 rounded-[8px] bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark"></div>
+
+            <div class="flex flex-col gap-1.5 mb-6">
+                <label for="expiry-select" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Link expiry (optional)</label>
+                <select id="expiry-select" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark">
+                    <option value="">Never (permanent link)</option>
+                    <option value="60">1 hour</option>
+                    <option value="1440">1 day</option>
+                    <option value="10080">7 days</option>
+                    <option value="43200">30 days</option>
+                </select>
+            </div>
+
+            <div id="dropzone" class="bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark hover:bg-m3-surfaceContainerHigh dark:hover:bg-m3-surfaceContainerHighDark rounded-[24px] p-10 flex flex-col items-center justify-center cursor-pointer mb-6 border border-transparent transition-colors">
+                <span class="material-symbols-outlined text-[48px] text-m3-primary dark:text-m3-primaryDark mb-4">upload</span>
+                <span class="text-base font-semibold">Click, drag, or paste (Ctrl+V) files</span>
+                <span class="text-sm mt-1 text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Multiple files supported &middot; any type</span>
+                <input type="file" id="file-input" class="hidden" multiple>
+            </div>
+
+            <div id="progress-container" class="hide mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="progress-label" class="text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Uploading to browser...</span>
+                    <span id="progress-text" class="text-sm font-bold text-m3-primary dark:text-m3-primaryDark">0%</span>
+                </div>
+                <div class="w-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark h-2 rounded-none overflow-hidden relative">
+                    <div id="progress-bar" class="bg-m3-primary dark:bg-m3-primaryDark h-2 rounded-none" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div id="processing-container" class="hide mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-semibold text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Saving to Hugging Face&hellip;</span>
+                    <span id="processing-timer" class="text-sm font-bold text-m3-primary dark:text-m3-primaryDark">0s</span>
+                </div>
+                <div class="w-full bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark h-2 rounded-none overflow-hidden relative">
+                    <div class="indeterminate-bar bg-m3-primary dark:bg-m3-primaryDark h-2 w-1/3 absolute"></div>
+                </div>
+            </div>
+
+            <div id="results-list" class="flex flex-col gap-3 mb-6"></div>
+
+            <div id="error-container" class="hide bg-m3-errorContainer dark:bg-m3-errorContainerDark text-m3-onErrorContainer dark:text-m3-onErrorContainerDark p-4 rounded-[16px] mb-6">
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined">error</span>
+                    <span id="error-text" class="text-sm font-medium mt-0.5"></span>
                 </div>
             </div>
         </div>
 
-        <div id="result-container" class="hide bg-m3-secondaryContainer dark:bg-m3-secondaryContainerDark p-4 rounded-[16px] mb-6 border border-transparent">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="material-symbols-outlined text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark">check_circle</span>
-                <span class="font-bold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark text-sm">Upload Successful</span>
+        <!-- ==================== URL TAB ==================== -->
+        <div id="url-tab" class="tab-panel hide">
+            <div class="flex flex-col gap-1.5 mb-4">
+                <label for="url-input" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">File URL</label>
+                <input type="text" id="url-input" placeholder="https://example.com/file.png" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark placeholder-gray-500">
             </div>
-            <div class="flex flex-col gap-3 bg-m3-background dark:bg-m3-backgroundDark p-3 rounded-[8px]">
-                <div id="final-link-text" class="text-sm text-m3-onSurface dark:text-m3-onSurfaceDark break-all select-all font-medium"></div>
-                <div class="flex gap-2 w-full">
-                    <button id="copy-btn" class="flex-1 bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-3 py-2 rounded-[8px] text-sm font-medium hover:bg-opacity-90 active:bg-opacity-100 flex items-center justify-center gap-1.5 border border-transparent">
-                        <span class="material-symbols-outlined text-[18px]" id="copy-icon">content_copy</span>
-                        <span>Copy</span>
-                    </button>
-                    <a id="open-btn" href="#" target="_blank" class="flex-1 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark text-m3-onSurface dark:text-m3-onSurfaceDark px-3 py-2 rounded-[8px] text-sm font-medium hover:bg-opacity-90 active:bg-opacity-100 flex items-center justify-center gap-1.5 no-underline border border-transparent">
-                        <span class="material-symbols-outlined text-[18px]">open_in_new</span>
-                        <span>Open</span>
-                    </a>
+            <div class="flex flex-col gap-1.5 mb-4">
+                <label for="url-custom-id" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Custom ID (optional)</label>
+                <input type="text" id="url-custom-id" placeholder="e.g., logo" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark placeholder-gray-500">
+            </div>
+            <div class="flex flex-col gap-1.5 mb-6">
+                <label for="url-expiry-select" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Link expiry (optional)</label>
+                <select id="url-expiry-select" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark">
+                    <option value="">Never (permanent link)</option>
+                    <option value="60">1 hour</option>
+                    <option value="1440">1 day</option>
+                    <option value="10080">7 days</option>
+                    <option value="43200">30 days</option>
+                </select>
+            </div>
+            <button id="url-upload-btn" class="w-full bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-4 py-3 rounded-[8px] text-sm font-semibold mb-6">Fetch &amp; Upload</button>
+
+            <div id="url-results-list" class="flex flex-col gap-3 mb-6"></div>
+            <div id="url-error-container" class="hide bg-m3-errorContainer dark:bg-m3-errorContainerDark text-m3-onErrorContainer dark:text-m3-onErrorContainerDark p-4 rounded-[16px] mb-6">
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined">error</span>
+                    <span id="url-error-text" class="text-sm font-medium mt-0.5"></span>
                 </div>
             </div>
         </div>
 
-        <div id="error-container" class="hide bg-m3-errorContainer dark:bg-m3-errorContainerDark text-m3-onErrorContainer dark:text-m3-onErrorContainerDark p-4 rounded-[16px] mb-6">
-            <div class="flex items-start gap-3">
-                <span class="material-symbols-outlined">error</span>
-                <span id="error-text" class="text-sm font-medium mt-0.5"></span>
-            </div>
+        <!-- ==================== BROWSE TAB ==================== -->
+        <div id="browse-tab" class="tab-panel hide">
+            <button id="refresh-files-btn" class="flex items-center gap-2 text-sm font-semibold text-m3-primary dark:text-m3-primaryDark mb-4">
+                <span class="material-symbols-outlined text-[18px]">refresh</span> Refresh
+            </button>
+            <div id="browse-list" class="flex flex-col gap-2"></div>
+            <div id="browse-empty" class="hide text-sm text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">No files yet.</div>
         </div>
 
+    </div>
+
+    <!-- QR modal -->
+    <div id="qr-modal" class="hide fixed inset-0 bg-black/50 items-center justify-center z-50 p-4">
+        <div class="bg-m3-surface dark:bg-m3-surfaceDark rounded-[24px] p-6 max-w-[320px] w-full flex flex-col items-center gap-4">
+            <div id="qr-code-box" class="bg-white p-3 rounded-[8px]"></div>
+            <div class="flex gap-2 w-full">
+                <button id="qr-download-btn" class="flex-1 bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-3 py-2 rounded-[8px] text-sm font-medium">Download PNG</button>
+                <button id="qr-close-btn" class="flex-1 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark px-3 py-2 rounded-[8px] text-sm font-medium">Close</button>
+            </div>
+        </div>
     </div>
 
     <div class="fixed bottom-4 left-0 w-full text-center text-xs font-medium text-m3-outline dark:text-m3-outlineDark z-10 pointer-events-none">
@@ -159,174 +186,276 @@
     </div>
 
     <script>
+        // ---------- Tabs ----------
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('tab-active');
+                    b.classList.add('text-m3-onSurfaceVariant', 'dark:text-m3-onSurfaceVariantDark');
+                });
+                btn.classList.add('tab-active');
+                btn.classList.remove('text-m3-onSurfaceVariant', 'dark:text-m3-onSurfaceVariantDark');
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hide'));
+                document.getElementById(btn.dataset.tab).classList.remove('hide');
+                if (btn.dataset.tab === 'browse-tab') loadFileList();
+            });
+        });
+
+        // ---------- Upload tab elements ----------
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('file-input');
         const customIdInput = document.getElementById('custom-id');
+        const expirySelect = document.getElementById('expiry-select');
         const progressContainer = document.getElementById('progress-container');
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
-        const skeletonContainer = document.getElementById('skeleton-container');
-        const resultContainer = document.getElementById('result-container');
-        const finalLinkText = document.getElementById('final-link-text');
-        const copyBtn = document.getElementById('copy-btn');
-        const copyIcon = document.getElementById('copy-icon');
-        const openBtn = document.getElementById('open-btn');
+        const processingContainer = document.getElementById('processing-container');
+        const processingTimer = document.getElementById('processing-timer');
+        const resultsList = document.getElementById('results-list');
         const errorContainer = document.getElementById('error-container');
         const errorText = document.getElementById('error-text');
 
         dropzone.addEventListener('click', () => fileInput.click());
-
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.style.borderColor = 'var(--tw-colors-m3-primary)';
-        });
-        
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.style.borderColor = 'transparent';
-        });
-        
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = '#386A20'; });
+        dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = 'transparent'; });
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.style.borderColor = 'transparent';
-            if (e.dataTransfer.files.length) {
-                uploadFile(e.dataTransfer.files[0]);
-            }
+            if (e.dataTransfer.files.length) uploadFiles(Array.from(e.dataTransfer.files));
         });
-
         fileInput.addEventListener('change', () => {
-            if (fileInput.files.length) {
-                uploadFile(fileInput.files[0]);
-            }
+            if (fileInput.files.length) uploadFiles(Array.from(fileInput.files));
         });
 
-        copyBtn.addEventListener('click', () => {
-            const linkToCopy = openBtn.href;
-            navigator.clipboard.writeText(linkToCopy).then(() => {
-                copyIcon.textContent = 'check';
-                copyBtn.querySelector('span:last-child').textContent = 'Copied';
-                
-                setTimeout(() => {
-                    copyIcon.textContent = 'content_copy';
-                    copyBtn.querySelector('span:last-child').textContent = 'Copy';
-                }, 2000);
-            }).catch(err => {
-                const tempTextArea = document.createElement("textarea");
-                tempTextArea.value = linkToCopy;
-                tempTextArea.style.position = "fixed";
-                tempTextArea.style.opacity = "0";
-                document.body.appendChild(tempTextArea);
-                tempTextArea.select();
-                document.execCommand("copy");
-                document.body.removeChild(tempTextArea);
-                
-                copyIcon.textContent = 'check';
-                copyBtn.querySelector('span:last-child').textContent = 'Copied';
-                setTimeout(() => { 
-                    copyIcon.textContent = 'content_copy'; 
-                    copyBtn.querySelector('span:last-child').textContent = 'Copy';
-                }, 2000);
-            });
+        // Paste-to-upload (only when the Upload tab is visible)
+        document.addEventListener('paste', (e) => {
+            if (document.getElementById('upload-tab').classList.contains('hide')) return;
+            const items = e.clipboardData && e.clipboardData.files;
+            if (items && items.length) uploadFiles(Array.from(items));
         });
 
-        function resetUI() {
-            progressContainer.classList.remove('show');
-            progressContainer.classList.add('hide');
-            skeletonContainer.classList.remove('show');
-            skeletonContainer.classList.add('hide');
-            resultContainer.classList.remove('show');
-            resultContainer.classList.add('hide');
-            errorContainer.classList.remove('show-flex');
-            errorContainer.classList.add('hide');
+        function resetUploadUI() {
+            progressContainer.classList.remove('show'); progressContainer.classList.add('hide');
+            processingContainer.classList.remove('show'); processingContainer.classList.add('hide');
+            errorContainer.classList.remove('show-flex'); errorContainer.classList.add('hide');
             progressBar.style.width = '0%';
             progressText.innerText = '0%';
         }
 
-        function uploadFile(file) {
-            resetUI();
+        function showError(container, textEl, msg) {
+            textEl.innerText = msg;
+            container.classList.remove('hide');
+            container.classList.add('show-flex');
+        }
 
-            if (file.size > 4.5 * 1024 * 1024) {
-                errorText.innerText = "File exceeds 4.5MB serverless limit.";
-                errorContainer.classList.remove('hide');
-                errorContainer.classList.add('show-flex');
-                return;
-            }
+        function renderResultCard(container, item) {
+            const origin = window.location.origin;
+            const finalUrl = origin + item.link_path;
+            const card = document.createElement('div');
+            card.className = "bg-m3-secondaryContainer dark:bg-m3-secondaryContainerDark p-4 rounded-[16px] border border-transparent";
+            const expiryNote = item.expires_at
+                ? `<div class="text-xs text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark opacity-80 mb-2">Expires: ${new Date(item.expires_at).toLocaleString()}</div>`
+                : '';
+            card.innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark">check_circle</span>
+                    <span class="font-bold text-m3-onSecondaryContainer dark:text-m3-onSecondaryContainerDark text-sm">${item.item_id}</span>
+                </div>
+                ${expiryNote}
+                <div class="flex flex-col gap-3 bg-m3-background dark:bg-m3-backgroundDark p-3 rounded-[8px]">
+                    <div class="text-sm break-all select-all font-medium link-text">${finalUrl}</div>
+                    <div class="flex gap-2 w-full">
+                        <button class="copy-btn flex-1 bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-3 py-2 rounded-[8px] text-sm font-medium flex items-center justify-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px]">content_copy</span><span>Copy</span>
+                        </button>
+                        <a href="${finalUrl}" target="_blank" class="open-btn flex-1 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark px-3 py-2 rounded-[8px] text-sm font-medium flex items-center justify-center gap-1.5 no-underline">
+                            <span class="material-symbols-outlined text-[18px]">open_in_new</span><span>Open</span>
+                        </a>
+                        <button class="qr-btn bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark px-3 py-2 rounded-[8px] text-sm font-medium flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[18px]">qr_code_2</span>
+                        </button>
+                    </div>
+                </div>`;
+            card.querySelector('.copy-btn').addEventListener('click', function () {
+                navigator.clipboard.writeText(finalUrl).catch(() => {});
+                const span = this.querySelector('span:last-child');
+                span.textContent = 'Copied'; setTimeout(() => span.textContent = 'Copy', 1500);
+            });
+            card.querySelector('.qr-btn').addEventListener('click', () => openQrModal(finalUrl, item.item_id));
+            container.prepend(card);
+        }
 
-            progressContainer.classList.remove('hide');
-            progressContainer.classList.add('show');
+        function uploadFiles(files) {
+            resetUploadUI();
 
             const formData = new FormData();
-            formData.append('file', file);
-            
+            files.forEach(f => formData.append('files', f));
             const customId = customIdInput.value.trim();
-            if (customId) formData.append('custom_id', customId);
+            if (customId) {
+                if (files.length > 1) {
+                    showError(errorContainer, errorText, "Custom ID can only be used with a single file.");
+                    return;
+                }
+                formData.append('custom_id', customId);
+            }
+            const expiry = expirySelect.value;
+            if (expiry) formData.append('expires_in_minutes', expiry);
+
+            progressContainer.classList.remove('hide'); progressContainer.classList.add('show');
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/upload', true);
 
-            xhr.upload.onprogress = function(e) {
+            xhr.upload.onprogress = function (e) {
                 if (e.lengthComputable) {
-                    const percentComplete = Math.round((e.loaded / e.total) * 100);
-                    progressBar.style.width = percentComplete + '%';
-                    progressText.innerText = percentComplete + '%';
-                    
-                    if (percentComplete === 100) {
-                        progressContainer.classList.remove('show');
-                        progressContainer.classList.add('hide');
-                        skeletonContainer.classList.remove('hide');
-                        skeletonContainer.classList.add('show');
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = pct + '%';
+                    progressText.innerText = pct + '%';
+                    if (pct === 100) {
+                        progressContainer.classList.remove('show'); progressContainer.classList.add('hide');
+                        processingContainer.classList.remove('hide'); processingContainer.classList.add('show');
+                        startProcessingTimer();
                     }
                 }
             };
 
-            xhr.onload = function() {
-                progressContainer.classList.remove('show');
-                progressContainer.classList.add('hide');
-                skeletonContainer.classList.remove('show');
-                skeletonContainer.classList.add('hide');
-                
+            xhr.onload = function () {
+                stopProcessingTimer();
+                progressContainer.classList.remove('show'); progressContainer.classList.add('hide');
+                processingContainer.classList.remove('show'); processingContainer.classList.add('hide');
+
                 if (xhr.status >= 200 && xhr.status < 300) {
                     try {
                         const data = JSON.parse(xhr.responseText);
-                        // Changed routing to native path instead of query parameter
-                        const finalUrl = `${window.location.origin}/${data.item_id}`;
-                        
-                        finalLinkText.innerText = finalUrl;
-                        openBtn.href = finalUrl;
-                        
-                        resultContainer.classList.remove('hide');
-                        resultContainer.classList.add('show');
-                        
-                        fileInput.value = '';
-                        customIdInput.value = '';
-                    } catch(err) {
-                        errorText.innerText = "Invalid response from server.";
-                        errorContainer.classList.remove('hide');
-                        errorContainer.classList.add('show-flex');
+                        data.files.forEach(item => renderResultCard(resultsList, item));
+                        fileInput.value = ''; customIdInput.value = '';
+                    } catch (err) {
+                        showError(errorContainer, errorText, "Invalid response from server.");
                     }
                 } else {
                     try {
                         const errData = JSON.parse(xhr.responseText);
-                        errorText.innerText = errData.detail || 'Upload failed.';
-                    } catch(err) {
-                        errorText.innerText = "Upload failed.";
+                        showError(errorContainer, errorText, errData.detail || 'Upload failed.');
+                    } catch (err) {
+                        showError(errorContainer, errorText, "Upload failed.");
                     }
-                    errorContainer.classList.remove('hide');
-                    errorContainer.classList.add('show-flex');
                 }
             };
 
-            xhr.onerror = function() {
-                progressContainer.classList.remove('show');
-                progressContainer.classList.add('hide');
-                skeletonContainer.classList.remove('show');
-                skeletonContainer.classList.add('hide');
-                errorText.innerText = "System error: Could not connect to server.";
-                errorContainer.classList.remove('hide');
-                errorContainer.classList.add('show-flex');
+            xhr.onerror = function () {
+                stopProcessingTimer();
+                progressContainer.classList.remove('show'); progressContainer.classList.add('hide');
+                processingContainer.classList.remove('show'); processingContainer.classList.add('hide');
+                showError(errorContainer, errorText, "System error: Could not connect to server.");
             };
 
             xhr.send(formData);
         }
+
+        let processingInterval = null;
+        function startProcessingTimer() {
+            let seconds = 0;
+            processingTimer.innerText = '0s';
+            processingInterval = setInterval(() => {
+                seconds += 1;
+                processingTimer.innerText = seconds + 's';
+            }, 1000);
+        }
+        function stopProcessingTimer() {
+            if (processingInterval) { clearInterval(processingInterval); processingInterval = null; }
+        }
+
+        // ---------- URL tab ----------
+        const urlInput = document.getElementById('url-input');
+        const urlCustomId = document.getElementById('url-custom-id');
+        const urlExpirySelect = document.getElementById('url-expiry-select');
+        const urlUploadBtn = document.getElementById('url-upload-btn');
+        const urlResultsList = document.getElementById('url-results-list');
+        const urlErrorContainer = document.getElementById('url-error-container');
+        const urlErrorText = document.getElementById('url-error-text');
+
+        urlUploadBtn.addEventListener('click', async () => {
+            urlErrorContainer.classList.remove('show-flex'); urlErrorContainer.classList.add('hide');
+            const url = urlInput.value.trim();
+            if (!url) { showError(urlErrorContainer, urlErrorText, "Enter a URL first."); return; }
+
+            const formData = new FormData();
+            formData.append('url', url);
+            const cid = urlCustomId.value.trim();
+            if (cid) formData.append('custom_id', cid);
+            const exp = urlExpirySelect.value;
+            if (exp) formData.append('expires_in_minutes', exp);
+
+            urlUploadBtn.disabled = true;
+            urlUploadBtn.innerText = 'Fetching & uploading...';
+
+            try {
+                const res = await fetch('/api/upload-url', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Upload failed.');
+                data.files.forEach(item => renderResultCard(urlResultsList, item));
+                urlInput.value = ''; urlCustomId.value = '';
+            } catch (err) {
+                showError(urlErrorContainer, urlErrorText, err.message);
+            } finally {
+                urlUploadBtn.disabled = false;
+                urlUploadBtn.innerText = 'Fetch & Upload';
+            }
+        });
+
+        // ---------- Browse tab ----------
+        const browseList = document.getElementById('browse-list');
+        const browseEmpty = document.getElementById('browse-empty');
+        document.getElementById('refresh-files-btn').addEventListener('click', loadFileList);
+
+        async function loadFileList() {
+            browseList.innerHTML = '<div class="text-sm text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Loading...</div>';
+            browseEmpty.classList.add('hide');
+            try {
+                const res = await fetch('/api/files');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Could not load files.');
+                browseList.innerHTML = '';
+                if (!data.files.length) { browseEmpty.classList.remove('hide'); return; }
+                data.files.forEach(f => {
+                    const row = document.createElement('div');
+                    row.className = "flex items-center justify-between gap-2 bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark px-4 py-3 rounded-[12px]";
+                    row.innerHTML = `
+                        <span class="text-sm truncate flex-1">${f.item_id}</span>
+                        <a href="${f.url}" target="_blank" class="text-m3-primary dark:text-m3-primaryDark flex items-center">
+                            <span class="material-symbols-outlined text-[20px]">open_in_new</span>
+                        </a>`;
+                    browseList.appendChild(row);
+                });
+            } catch (err) {
+                browseList.innerHTML = '';
+                showError(errorContainer, errorText, err.message);
+            }
+        }
+
+        // ---------- QR modal ----------
+        const qrModal = document.getElementById('qr-modal');
+        const qrCodeBox = document.getElementById('qr-code-box');
+        const qrDownloadBtn = document.getElementById('qr-download-btn');
+        let qrFilename = 'qrcode';
+
+        function openQrModal(url, name) {
+            qrCodeBox.innerHTML = '';
+            qrFilename = name || 'qrcode';
+            new QRCode(qrCodeBox, { text: url, width: 220, height: 220 });
+            qrModal.classList.remove('hide'); qrModal.classList.add('show-flex');
+        }
+        document.getElementById('qr-close-btn').addEventListener('click', () => {
+            qrModal.classList.remove('show-flex'); qrModal.classList.add('hide');
+        });
+        qrDownloadBtn.addEventListener('click', () => {
+            const img = qrCodeBox.querySelector('img') || qrCodeBox.querySelector('canvas');
+            const src = img.tagName === 'CANVAS' ? img.toDataURL('image/png') : img.src;
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = qrFilename + '-qr.png';
+            a.click();
+        });
     </script>
 </body>
 </html>

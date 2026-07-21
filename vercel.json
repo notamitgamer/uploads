@@ -1,16 +1,16 @@
 {
-"$schema": "https://openapi.vercel.sh/vercel.json",
-"redirects": [
-{
-"source": "/:filename",
-"destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
-"permanent": false
-}
-],
-"rewrites": [
-{
-"source": "/api/(.*)",
-"destination": "/api/index"
-}
-]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:filename",
+      "destination": "https://huggingface.co/datasets/notamitgamer/uploads/resolve/main/:filename",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    }
+  ]
 }
