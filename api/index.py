@@ -8,7 +8,7 @@ from typing import List, Optional
 
 import httpx
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
 from huggingface_hub import HfApi, hf_hub_download
 from huggingface_hub.utils import EntryNotFoundError
 
@@ -53,6 +53,12 @@ def random_id(ext: str) -> str:
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     random_str = "".join(random.choices(string.ascii_letters + string.digits, k=6))
     return f"{timestamp}-{random_str}{ext}"
+
+
+def random_batch_id() -> str:
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    random_str = "".join(random.choices(string.ascii_letters + string.digits, k=8))
+    return f"{timestamp}-{random_str}"
 
 
 def get_api() -> HfApi:
@@ -155,7 +161,20 @@ async def upload_files(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to upload '{f.filename}': {e}")
 
-    return {"files": results}
+    batch_path = None
+    batch_expires_at = None
+    if len(results) > 1:
+        batch_id = random_batch_id()
+        batch_expires_at = results[0].get("expires_at")  # all files in a batch share the same expiry
+        manifest = {
+            "item_ids": [r["item_id"] for r in results],
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "expires_at": batch_expires_at,
+        }
+        upload_bytes(api, json.dumps(manifest).encode(), f"_batches/{batch_id}.json")
+        batch_path = f"/batch/{batch_id}"
+
+    return {"files": results, "batch_path": batch_path, "batch_expires_at": batch_expires_at}
 
 
 @app.post("/api/upload-url")
@@ -217,3 +236,83 @@ async def serve_expiring_file(item_id: str):
         pass  # if metadata can't be checked, fail open rather than block a valid file
 
     return RedirectResponse(url=raw_url(item_id), status_code=302)
+
+
+@app.get("/batch/{batch_id}", response_class=HTMLResponse)
+async def serve_batch(batch_id: str):
+    """Renders a simple page listing every file uploaded together in one batch."""
+    try:
+        manifest_path = hf_hub_download(
+            repo_id=DATASET_REPO,
+            repo_type="dataset",
+            filename=f"_batches/{batch_id}.json",
+            token=HF_TOKEN,
+        )
+        with open(manifest_path) as fh:
+            manifest = json.load(fh)
+    except EntryNotFoundError:
+        return HTMLResponse(status_code=404, content=_batch_html([], not_found=True))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    expires_at = manifest.get("expires_at")
+    if expires_at and datetime.fromisoformat(expires_at) < datetime.now(timezone.utc):
+        return HTMLResponse(status_code=410, content=_batch_html([], expired=True))
+
+    item_ids = manifest.get("item_ids", [])
+    files = []
+    for item_id in item_ids:
+        # if a file has an expiry meta, route through the checked path; otherwise link straight to HF
+        link_path = f"/api/file/{item_id}"
+        files.append({"item_id": item_id, "link_path": link_path})
+
+    return HTMLResponse(content=_batch_html(files))
+
+
+def _batch_html(files: list, not_found: bool = False, expired: bool = False) -> str:
+    if not_found:
+        body = '<p class="empty">Batch not found.</p>'
+    elif expired:
+        body = '<p class="empty">This batch link has expired.</p>'
+    elif not files:
+        body = '<p class="empty">This batch is empty.</p>'
+    else:
+        rows = "\n".join(
+            f'''<div class="row">
+                <span class="name">{f["item_id"]}</span>
+                <a class="open" href="{f["link_path"]}" target="_blank">Open</a>
+            </div>'''
+            for f in files
+        )
+        body = f'<div class="list">{rows}</div>'
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batch Upload</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body {{ font-family: 'Lexend', sans-serif; background: #FDFCFB; color: #1A1C19; margin: 0; padding: 2rem 1rem; }}
+  @media (prefers-color-scheme: dark) {{ body {{ background: #1A1C19; color: #E3E3DC; }} }}
+  .wrap {{ max-width: 520px; margin: 0 auto; }}
+  h1 {{ font-size: 1.4rem; margin-bottom: 1.5rem; }}
+  .list {{ display: flex; flex-direction: column; gap: 0.5rem; }}
+  .row {{ display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+          background: #F1F1EA; padding: 0.9rem 1rem; border-radius: 12px; }}
+  @media (prefers-color-scheme: dark) {{ .row {{ background: #2D2F2B; }} }}
+  .name {{ font-size: 0.85rem; word-break: break-all; }}
+  .open {{ flex-shrink: 0; background: #386A20; color: #fff; text-decoration: none;
+           font-size: 0.85rem; font-weight: 600; padding: 0.45rem 0.9rem; border-radius: 8px; }}
+  @media (prefers-color-scheme: dark) {{ .open {{ background: #9CD67D; color: #0C3900; }} }}
+  .empty {{ font-size: 0.9rem; opacity: 0.7; }}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Batch upload &middot; {len(files)} file{'s' if len(files) != 1 else ''}</h1>
+    {body}
+  </div>
+</body>
+</html>"""
