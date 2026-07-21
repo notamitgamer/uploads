@@ -53,6 +53,21 @@
         @media (prefers-color-scheme: dark) { .tab-active { border-bottom-color: #9CD67D; color: #9CD67D; } }
         @keyframes indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
         .indeterminate-bar { animation: indeterminate 1.2s ease-in-out infinite; }
+
+        /* Custom dropdown */
+        .dd { position: relative; }
+        .dd-trigger { cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; }
+        .dd-trigger .dd-chevron { transition: transform 0.15s ease; }
+        .dd.open .dd-trigger .dd-chevron { transform: rotate(180deg); }
+        .dd-panel {
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
+            overflow: hidden; opacity: 0; transform: translateY(-6px) scale(0.98);
+            pointer-events: none; transition: opacity 0.12s ease, transform 0.12s ease;
+        }
+        .dd.open .dd-panel { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .dd-option { cursor: pointer; }
+        .dd-option.selected { color: #386A20; font-weight: 600; }
+        @media (prefers-color-scheme: dark) { .dd-option.selected { color: #9CD67D; } }
     </style>
 </head>
 <body class="bg-m3-background dark:bg-m3-backgroundDark text-m3-onSurface dark:text-m3-onSurfaceDark flex flex-col items-center min-h-screen p-4 font-sans">
@@ -81,14 +96,20 @@
             </div>
 
             <div class="flex flex-col gap-1.5 mb-6">
-                <label for="expiry-select" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Link expiry (optional)</label>
-                <select id="expiry-select" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark">
-                    <option value="">Never (permanent link)</option>
-                    <option value="60">1 hour</option>
-                    <option value="1440">1 day</option>
-                    <option value="10080">7 days</option>
-                    <option value="43200">30 days</option>
-                </select>
+                <label class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Link expiry (optional)</label>
+                <div id="expiry-dd" class="dd" data-value="">
+                    <div class="dd-trigger px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark">
+                        <span class="dd-label">Never (permanent link)</span>
+                        <span class="material-symbols-outlined dd-chevron text-[20px]">expand_more</span>
+                    </div>
+                    <div class="dd-panel bg-m3-surfaceContainerHigh dark:bg-m3-surfaceContainerHighDark rounded-[12px] shadow-lg">
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark selected" data-value="">Never (permanent link)</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="60">1 hour</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="1440">1 day</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="10080">7 days</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="43200">30 days</div>
+                    </div>
+                </div>
             </div>
 
             <div id="dropzone" class="bg-m3-surfaceContainer dark:bg-m3-surfaceContainerDark hover:bg-m3-surfaceContainerHigh dark:hover:bg-m3-surfaceContainerHighDark rounded-[24px] p-10 flex flex-col items-center justify-center cursor-pointer mb-6 border border-transparent transition-colors">
@@ -139,14 +160,20 @@
                 <input type="text" id="url-custom-id" placeholder="e.g., logo" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark placeholder-gray-500">
             </div>
             <div class="flex flex-col gap-1.5 mb-6">
-                <label for="url-expiry-select" class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Link expiry (optional)</label>
-                <select id="url-expiry-select" class="px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark">
-                    <option value="">Never (permanent link)</option>
-                    <option value="60">1 hour</option>
-                    <option value="1440">1 day</option>
-                    <option value="10080">7 days</option>
-                    <option value="43200">30 days</option>
-                </select>
+                <label class="text-sm font-medium text-m3-onSurfaceVariant dark:text-m3-onSurfaceVariantDark">Link expiry (optional)</label>
+                <div id="url-expiry-dd" class="dd" data-value="">
+                    <div class="dd-trigger px-4 py-3 bg-m3-surfaceContainerHighest dark:bg-m3-surfaceContainerHighestDark rounded-t-md border-b-2 border-m3-outline dark:border-m3-outlineDark">
+                        <span class="dd-label">Never (permanent link)</span>
+                        <span class="material-symbols-outlined dd-chevron text-[20px]">expand_more</span>
+                    </div>
+                    <div class="dd-panel bg-m3-surfaceContainerHigh dark:bg-m3-surfaceContainerHighDark rounded-[12px] shadow-lg">
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark selected" data-value="">Never (permanent link)</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="60">1 hour</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="1440">1 day</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="10080">7 days</div>
+                        <div class="dd-option px-4 py-3 hover:bg-m3-surfaceContainerHighest dark:hover:bg-m3-surfaceContainerHighestDark" data-value="43200">30 days</div>
+                    </div>
+                </div>
             </div>
             <button id="url-upload-btn" class="w-full bg-m3-primary dark:bg-m3-primaryDark text-m3-onPrimary dark:text-m3-onPrimaryDark px-4 py-3 rounded-[8px] text-sm font-semibold mb-6">Fetch &amp; Upload</button>
 
@@ -181,11 +208,49 @@
         </div>
     </div>
 
-    <div class="fixed bottom-4 left-0 w-full text-center text-xs font-medium text-m3-outline dark:text-m3-outlineDark z-10 pointer-events-none">
+    <div class="w-full text-center text-xs font-medium text-m3-outline dark:text-m3-outlineDark mt-10 mb-4">
         &copy; 2026 notamitgamer
     </div>
 
     <script>
+        // ---------- Custom dropdown ----------
+        function initDropdown(id) {
+            const dd = document.getElementById(id);
+            const trigger = dd.querySelector('.dd-trigger');
+            const label = dd.querySelector('.dd-label');
+            const options = dd.querySelectorAll('.dd-option');
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.dd.open').forEach(other => { if (other !== dd) other.classList.remove('open'); });
+                dd.classList.toggle('open');
+            });
+
+            options.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    options.forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    label.textContent = opt.textContent;
+                    dd.dataset.value = opt.dataset.value;
+                    dd.classList.remove('open');
+                });
+            });
+        }
+        initDropdown('expiry-dd');
+        initDropdown('url-expiry-dd');
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dd.open').forEach(dd => dd.classList.remove('open'));
+        });
+        function ddValue(id) { return document.getElementById(id).dataset.value || ''; }
+        function resetDropdown(id) {
+            const dd = document.getElementById(id);
+            const first = dd.querySelector('.dd-option');
+            dd.querySelectorAll('.dd-option').forEach(o => o.classList.remove('selected'));
+            first.classList.add('selected');
+            dd.querySelector('.dd-label').textContent = first.textContent;
+            dd.dataset.value = '';
+        }
+
         // ---------- Tabs ----------
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -205,7 +270,6 @@
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('file-input');
         const customIdInput = document.getElementById('custom-id');
-        const expirySelect = document.getElementById('expiry-select');
         const progressContainer = document.getElementById('progress-container');
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
@@ -298,7 +362,7 @@
                 }
                 formData.append('custom_id', customId);
             }
-            const expiry = expirySelect.value;
+            const expiry = ddValue('expiry-dd');
             if (expiry) formData.append('expires_in_minutes', expiry);
 
             progressContainer.classList.remove('hide'); progressContainer.classList.add('show');
@@ -329,6 +393,7 @@
                         const data = JSON.parse(xhr.responseText);
                         data.files.forEach(item => renderResultCard(resultsList, item));
                         fileInput.value = ''; customIdInput.value = '';
+                        resetDropdown('expiry-dd');
                     } catch (err) {
                         showError(errorContainer, errorText, "Invalid response from server.");
                     }
@@ -368,7 +433,6 @@
         // ---------- URL tab ----------
         const urlInput = document.getElementById('url-input');
         const urlCustomId = document.getElementById('url-custom-id');
-        const urlExpirySelect = document.getElementById('url-expiry-select');
         const urlUploadBtn = document.getElementById('url-upload-btn');
         const urlResultsList = document.getElementById('url-results-list');
         const urlErrorContainer = document.getElementById('url-error-container');
@@ -383,7 +447,7 @@
             formData.append('url', url);
             const cid = urlCustomId.value.trim();
             if (cid) formData.append('custom_id', cid);
-            const exp = urlExpirySelect.value;
+            const exp = ddValue('url-expiry-dd');
             if (exp) formData.append('expires_in_minutes', exp);
 
             urlUploadBtn.disabled = true;
@@ -395,6 +459,7 @@
                 if (!res.ok) throw new Error(data.detail || 'Upload failed.');
                 data.files.forEach(item => renderResultCard(urlResultsList, item));
                 urlInput.value = ''; urlCustomId.value = '';
+                resetDropdown('url-expiry-dd');
             } catch (err) {
                 showError(urlErrorContainer, urlErrorText, err.message);
             } finally {
